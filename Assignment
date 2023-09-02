@@ -68,7 +68,7 @@ type_of_ticket:
     cmp al, 'B'
     jmp _start
 
-jumpback:
+jumpback:    ;range to big need tiao ban
     jmp _start
 
 purchase:
