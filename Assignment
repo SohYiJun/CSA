@@ -24,6 +24,21 @@ main proc
 	lea dx,str3
 	int 21h
 
+_start:
+	mov ah, 09h            ; Display the menu
+    	lea dx, menuMsg
+    	int 21h
+
+    	mov ah, 01h            ; Read a single character from the user
+    	int 21h
+    	sub al, '0'            ; Convert ASCII to numeric
+
+    	cmp al, 1
+    	je type_of_ticket
+    	;cmp al, 2
+    	;e purchase
+    	cmp al, 4
+    	je exit_program
 
    	 ; Invalid choice
     	mov ah, 09h
