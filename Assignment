@@ -1,63 +1,83 @@
 .model small
 .stack 100
 .data
-	str1 db       "-----------------------------------$"
-	str2 db 13,10,"        Music Community       $"
-	str3 db 13,10,"-----------------------------------$"
-	menuMsg db 10, 13, "1. Type of ticket", 10, 13, "2. Purchase", 10, 13, "3. Cart History", 10, 13, "4. Exit ", 10,13, "Enter your choice: $"
-    	invalidMsg db 10, 13, "Invalid choice. Please try again.", 10, 13, "$"
-    	choice db 0
-	ticketTitle db 10, 13, "Type Of Ticket",10,13,"$"
-	typeticket db 10, 13, "1. Normal", 10, 13, "2. VIP", 10, 13, "3. Couple$"
-
+    str1 db       "-----------------------------------$"
+    str2 db 13,10,"        Music Community       $"
+    str3 db 13,10,"-----------------------------------$"
+    menuMsg db 10, 13, "1. Type of ticket", 10, 13, "2. Purchase", 10, 13, "3. Cart History", 10, 13, "4. Exit ", 10,13, "Enter your choice: $"
+    invalidMsg db 10, 13, "Invalid choice. Please try again.", 10, 13, "$"
+    choice db 0
+    ticketTitle db 10, 13, "Type Of Ticket",10,13,"$"
+    typeticket db 10, 13, "1. Normal", 10, 13, "2. VIP", 10, 13, "3. Couple$"
+    purchase_str db 10,13,"-----------------------------------", 10,13, "    Purchase ", 10, 13, "-----------------------------------$"
 
 .code
 main proc
-	mov ax,@data
-	mov ds,ax
+    mov ax,@data
+    mov ds,ax
 
-	mov ah,09h
-	lea dx,str1
-	int 21h
-	lea dx,str2
-	int 21h
-	lea dx,str3
-	int 21h
+    mov ah,09h
+    lea dx,str1
+    int 21h
+    lea dx,str2
+    int 21h
+    lea dx,str3
+    int 21h
 
 _start:
-	mov ah, 09h            ; Display the menu
-    	lea dx, menuMsg
-    	int 21h
+    mov ah, 09h            ; Display the menu
+    lea dx, menuMsg
+    int 21h
 
-    	mov ah, 01h            ; Read a single character from the user
-    	int 21h
-    	sub al, '0'            ; Convert ASCII to numeric
+    mov ah, 01h            ; Read a single character from the user
+    int 21h
+    sub al, '0'            ; Convert ASCII to numeric
 
-    	cmp al, 1
-    	je type_of_ticket
-    	;cmp al, 2
-    	;e purchase
-    	cmp al, 4
-    	je exit_program
+    cmp al, 1
+    je type_of_ticket
+    cmp al, 2
+    je purchase
+    cmp al, 4
+    je exit_program
 
-   	 ; Invalid choice
-    	mov ah, 09h
-    	lea dx, invalidMsg
-    	int 21h
-    	jmp _start
+    ; Invalid choice
+    mov ah, 09h
+    lea dx, invalidMsg
+    int 21h
+    jmp _start
 
 type_of_ticket:
-	mov ah,09h
-	lea dx,str3
-	int 21h
-	lea dx,ticketTitle
-	int 21h
-	lea dx,str1
-	int 21h
-	lea dx,typeticket
-	int 21h
+    mov ah,09h
+    lea dx,str3
+    int 21h
+    lea dx,ticketTitle
+    int 21h
+    lea dx,str1
+    int 21h
+    lea dx,typeticket
+    int 21h
 
-	mov ah,4ch
-	int 21h
+purchase:
+    mov ah,09h
+    lea dx,purchase_str
+    int 21h
+    lea dx,str3
+    int 21h
+    lea dx,ticketTitle
+    int 21h
+    lea dx,str1
+    int 21h
+    lea dx,typeticket
+    int 21h
+
+    
+
+exit_program:
+    mov ah, 4Ch        ; Set the function code for program termination
+    int 21h   
+
+    mov ah, 4Ch        
+    int 21h	
+
 main endp
-	end main
+    end main
