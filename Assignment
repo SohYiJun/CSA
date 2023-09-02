@@ -10,6 +10,7 @@
     ticketTitle db 10, 13, "Type Of Ticket",10,13,"$"
     typeticket db 10, 13, "1. Normal", 10, 13, "2. VIP", 10, 13, "3. Couple$"
     purchase_str db 10,13,"-----------------------------------", 10,13, "    Purchase ", 10, 13, "-----------------------------------$"
+    purchase_choice db 10,13,10,13,"Enter O to order", 10,13, "Enter E back to menu",10,13,"Insert your choice:  $"
 
 .code
 main proc
@@ -70,6 +71,36 @@ purchase:
     lea dx,typeticket
     int 21h
 
+    mov ah, 09h            ; Display the menu
+    lea dx, purchase_choice
+    int 21h
+
+    mov ah, 01h            ; Read a single character from the user
+    int 21h
+
+   
+    ; Convert the entered character to uppercase (if it's a letter)
+    cmp al, 'a'
+    jb not_letter
+    cmp al, 'z'
+    ja not_letter
+    sub al, 32             ; Convert lowercase to uppercase
+
+not_letter:
+    
+    cmp al, 'O'            ; Check for 'O' (Order)
+    je order_selected
+    cmp al, 'E'            ; Check for 'E' (Exit)
+    je _start
+
+    ; Invalid choice
+    mov ah, 09h
+    lea dx, invalidMsg
+    int 21h
+    jmp _start
+
+order_selected:
+    jmp _start
     
 
 exit_program:
