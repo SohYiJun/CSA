@@ -4,6 +4,7 @@
     str1 db       "-----------------------------------$"
     str2 db 13,10,"        Music Community       $"
     str3 db 13,10,"-----------------------------------$"
+    menu db 10,13,"-----------------------------------", 10,13, "    Menu ", 10, 13, "-----------------------------------$"
     menuMsg db 10, 13, "1. Type of ticket", 10, 13, "2. Purchase", 10, 13, "3. Cart History", 10, 13, "4. Exit ", 10,13, "Enter your choice: $"
     invalidMsg db 10, 13, "Invalid choice. Please try again.", 10, 13, "$"
     choice db 0
@@ -11,6 +12,7 @@
     typeticket db 10, 13, "1. Normal", 10, 13, "2. VIP", 10, 13, "3. Couple$"
     purchase_str db 10,13,"-----------------------------------", 10,13, "    Purchase ", 10, 13, "-----------------------------------$"
     purchase_choice db 10,13,10,13,"Enter O to order", 10,13, "Enter E back to menu",10,13,"Insert your choice:  $"
+    strback db 10,13,"Enter B back to menu: $"
 
 .code
 main proc
@@ -27,6 +29,8 @@ main proc
 
 _start:
     mov ah, 09h            ; Display the menu
+    lea dx, menu
+    int 21h
     lea dx, menuMsg
     int 21h
 
@@ -57,6 +61,15 @@ type_of_ticket:
     int 21h
     lea dx,typeticket
     int 21h
+    lea dx,strback 
+    int 21h
+    mov ah, 01h            ; Read a single character from the user
+    int 21h
+    cmp al, 'B'
+    jmp _start
+
+jumpback:
+    jmp _start
 
 purchase:
     mov ah,09h
@@ -70,37 +83,27 @@ purchase:
     int 21h
     lea dx,typeticket
     int 21h
-
-    mov ah, 09h            ; Display the menu
+    mov ah, 09h            ; Display the choice
     lea dx, purchase_choice
     int 21h
-
     mov ah, 01h            ; Read a single character from the user
     int 21h
-
-   
     ; Convert the entered character to uppercase (if it's a letter)
-    cmp al, 'a'
-    jb not_letter
-    cmp al, 'z'
-    ja not_letter
-    sub al, 32             ; Convert lowercase to uppercase
-
-not_letter:
-    
     cmp al, 'O'            ; Check for 'O' (Order)
     je order_selected
     cmp al, 'E'            ; Check for 'E' (Exit)
-    je _start
+    je jumpback
 
     ; Invalid choice
     mov ah, 09h
     lea dx, invalidMsg
     int 21h
-    jmp _start
+    je jumpback
+
+
 
 order_selected:
-    jmp _start
+    jmp jumpback
     
 
 exit_program:
