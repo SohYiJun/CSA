@@ -1,0 +1,78 @@
+.model small
+.stack 100
+.data
+    input_message db 10,13, "Enter quantity of ticket: $" 
+    ticket_price dw 15   ; Set the ticket price (e.g., $15)    
+    total_message db 10,13, "Total price is: $"
+    total_price_str db 6 dup(0)  ; String to hold the total price (up to 5 digits plus null-terminator)
+    invalidMsg db 10, 13, "Invalid choice. Please try again.", 10, 13, "$"
+
+.code
+main proc
+    mov ax,@data
+    mov ds,ax
+
+_start:
+    mov ah, 09h            ; Display the input message
+    lea dx, input_message
+    int 21h
+
+    mov ah, 01h            ; Read a single character from the user
+    int 21h
+    sub al, '0'            ; Convert ASCII to numeric
+
+    cmp al, 1
+    jb invalid_input
+    cmp al, 9
+    ja invalid_input
+    cmp al, 0
+    je exit
+
+
+
+    ; Calculate the total price
+    mov bl, al             ; Move the quantity to BL
+    mov ax, ticket_price   ; Load the ticket price into AX
+    mul bl                 ; Multiply AX by BL (quantity)
+    mov bx, ax             ; Store the total price in BX
+
+    ; Convert the total price to a string
+    mov ax, bx             ; Move the total price from BX to AX
+    mov cx, 10            ; Set CX to 10 (for dividing by 10)
+    mov si, 0              ; Initialize SI as an index for the string
+    lea di, [total_price_str + 5]  ; Point DI to the end of the string
+
+convert_loop:
+    xor dx, dx            ; Clear DX for division
+    div cx                ; Divide AX by 10, quotient in AX, remainder in DX
+    add dl, '0'           ; Convert the remainder to ASCII
+    mov [di], dl          ; Store the ASCII character in the string
+    dec di                ; Move the pointer to the previous position in the string
+    test ax, ax           ; Check if AX is zero (end of conversion)
+    jnz convert_loop      ; If not zero, continue the conversion loop
+
+    ; Display the total price
+    mov ah, 09h
+    lea dx, total_message
+    int 21h
+
+    mov ah, 09h
+    lea dx, total_price_str
+    int 21h
+
+    ; Return to the main menu
+    jmp _start
+
+invalid_input:
+    mov dx,0
+    mov ah, 09h
+    lea dx, invalidMsg
+    int 21h
+    jmp exit
+
+exit:
+    mov ah, 4ch
+    int 21h
+
+main endp
+end main
