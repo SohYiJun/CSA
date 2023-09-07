@@ -1,78 +1,118 @@
 .model small
 .stack 100
 .data
-    input_message db 10,13, "Enter quantity of ticket: $" 
-    ticket_price dw 15   ; Set the ticket price (e.g., $15)    
-    total_message db 10,13, "Total price is: $"
-    total_price_str db 6 dup(0)  ; String to hold the total price (up to 5 digits plus null-terminator)
-    invalidMsg db 10, 13, "Invalid choice. Please try again.", 10, 13, "$"
+    price dw 30             ; Fixed price per item
+    quantity db ?           ; User input for quantity
+    total dw ?              ; Total price
+    sst dw ?                ; SST (Sales and Service Tax)
+    grandTotal dw ?         ; Grand Total
+
+    inputMsg db "Enter quantity of ticket (1-9): $"
+    invalidMsg db "Invalid quantity. Please enter a number between 1 and 9.$"
+    resultMsg1 db "Total price = $"
+    resultMsg2 db "SST = $"
+    resultMsg3 db "Grand total = $"
+    newline db 10, 13, '$'
 
 .code
 main proc
-    mov ax,@data
-    mov ds,ax
+    mov ax, @data
+    mov ds, ax
 
-_start:
-    mov ah, 09h            ; Display the input message
-    lea dx, input_message
+    mov ah, 09h             ; Print input message
+    lea dx, inputMsg
     int 21h
 
-    mov ah, 01h            ; Read a single character from the user
+    ; Input quantity
+    mov ah, 01h
     int 21h
-    sub al, '0'            ; Convert ASCII to numeric
+    sub al, '0'             ; Convert ASCII to numeric value
+    cmp al, 1               ; Check if quantity is at least 1
+    jl invalidQuantity
+    cmp al, 9               ; Check if quantity is at most 9
+    jg invalidQuantity
 
-    cmp al, 1
-    jb invalid_input
-    cmp al, 9
-    ja invalid_input
-    cmp al, 0
-    je exit
+    ; Calculate total price
+    mov bl, al              ; Quantity in BL
+    mov ax, price           ; Price in AX
+    mul bx                  ; AX = price * quantity
+    mov total, ax
 
+    ; Calculate SST (5% of total)
+    mov ax, total
+    mov bx, 5
+    mul bx
+    mov dx, 0               ; Clear DX for division
+    mov bx, 100             ; Divisor = 100
+    div bx                  ; AX = total * 0.05
+    mov sst, ax
 
+    ; Calculate Grand Total
+    mov ax, total
+    add ax, sst
+    mov grandTotal, ax
 
-    ; Calculate the total price
-    mov bl, al             ; Move the quantity to BL
-    mov ax, ticket_price   ; Load the ticket price into AX
-    mul bl                 ; Multiply AX by BL (quantity)
-    mov bx, ax             ; Store the total price in BX
-
-    ; Convert the total price to a string
-    mov ax, bx             ; Move the total price from BX to AX
-    mov cx, 10            ; Set CX to 10 (for dividing by 10)
-    mov si, 0              ; Initialize SI as an index for the string
-    lea di, [total_price_str + 5]  ; Point DI to the end of the string
-
-convert_loop:
-    xor dx, dx            ; Clear DX for division
-    div cx                ; Divide AX by 10, quotient in AX, remainder in DX
-    add dl, '0'           ; Convert the remainder to ASCII
-    mov [di], dl          ; Store the ASCII character in the string
-    dec di                ; Move the pointer to the previous position in the string
-    test ax, ax           ; Check if AX is zero (end of conversion)
-    jnz convert_loop      ; If not zero, continue the conversion loop
-
-    ; Display the total price
-    mov ah, 09h
-    lea dx, total_message
+    ; Display results
+    mov ah, 09h             ; Print result messages
+    lea dx, resultMsg1
     int 21h
 
-    mov ah, 09h
-    lea dx, total_price_str
+    mov ax, total           ; Display Total
+    call printValue
+
+    mov ah, 09h             ; Print new line
+    lea dx, newline
     int 21h
 
-    ; Return to the main menu
-    jmp _start
-
-invalid_input:
-    mov dx,0
-    mov ah, 09h
-    lea dx, invalidMsg
+    lea dx, resultMsg2
     int 21h
+
+    mov ax, sst             ; Display SST
+    call printValue
+
+    mov ah, 09h             ; Print new line
+    lea dx, newline
+    int 21h
+
+    lea dx, resultMsg3
+    int 21h
+
+    mov ax, grandTotal      ; Display Grand Total
+    call printValue
+
     jmp exit
 
-exit:
-    mov ah, 4ch
+invalidQuantity:
+    mov ah, 09h             ; Print invalid message
+    lea dx, invalidMsg
     int 21h
+
+exit:
+    mov ah, 4Ch             ; Exit program
+    int 21h
+
+printValue:
+    push ax
+    mov cx, 0
+    mov bx, 10
+
+    nextDigit:
+        xor dx, dx          ; Clear DX for division
+        div bx              ; Divide AX by 10, result in AX, remainder in DX
+        push dx             ; Push the remainder onto the stack
+        inc cx              ; Increment digit count
+        test ax, ax         ; Check if quotient is zero
+        jnz nextDigit
+
+    printDigits:
+        pop dx              ; Pop a digit from the stack
+        add dl, '0'         ; Convert digit to ASCII
+        mov ah, 02h         ; DOS function to print character
+        int 21h
+        loop printDigits
+
+    pop ax
+    ret
 
 main endp
 end main
