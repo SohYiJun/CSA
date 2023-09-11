@@ -1,40 +1,70 @@
 .model small
 .stack 100
 .data
-    	str1 db       	"	-----------------------------------$"
-    	str2 db 13,10,	"		Music Community            $"
-    	str3 db 13,10,	"	-----------------------------------$"
-    	menu db 10,13,	"	-----------------------------------", 10,13,"			Menu 		  ", 10, 13, "	-----------------------------------$"
-    	eventTitle db 10,13,"	-----------------------------------", 10,13,"		   Event Details 		  ", 10, 13, "	-----------------------------------$"
-    	menuMsg db 10, 13, "		1. Event Details	  ", 10, 13,"		2. Purchase ", 10, 13, "		3. Cart History	  ", 10, 13, "		4. Exit	 ", 10,13,"		Enter your choice: $"
+    	music_community	  DB 10,13,"                                                                               "
+		          DB 10,13,"                  M  U  S  I  C     C  O  M  M  U  N  I  T  Y                     "
+			  DB 10,13,"                                                                               "
+ 			  DB 10,13,"                      ___________________________________"
+			  DB 10,13,"                     |                                   |"
+               		  DB 10,13,"                     |            M  E  N  U             |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                     |                                   |"
+			  DB 10,13,"                     |   1. Event Details                |"
+			  DB 10,13,"                     |   2. Purchase                     |"
+			  DB 10,13,"                     |   3. Cart History                 |"
+			  DB 10,13,"                     |   4. Exit                         |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                                                          "
+			  DB 10,13,"                      Please select your option (1-4) > $"
     	invalidMsg db 10, 13, "	Invalid choice. Please try again.", 10, 13, "$"
+	eventTitle 	  DB 10,13,"                      ___________________________________"
+			  DB 10,13,"                     |                                   |"
+               		  DB 10,13,"                     |      E v e n t  D e t a i l s     |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                                                          "
+			  DB 10,13,"                        Welcome to our Music Community!   "
+			  DB 10,13,"	    We're super excited to tell you about the TARUMT Music Festival "
+			  DB 10,13,"     We're offering three types of tickets that match what you're looking for"
+			  DB 10,13,"                                                                          "
+			  DB 10,13,"                             1)Standard Ticket:"                                              
+			  DB 10,13,"                             2)Couple Ticket: "
+			  DB 10,13,"                             3)VIP Ticket: "
+			  DB 10,13,"                                                                          "
+			  DB 10,13,"   Join us at the TARUMT Music Festival, where tunes and moments mix together, "
+			  DB 10,13," and we make memories that stick with us. Let our user-friendly system simplify" 
+	                  DB 10,13,"          your journey towards an unforgettable musical experience.            "
+			  DB 10,13,"                                                                          "
+			  db 10,13,"                       Enter B back to menu: $"
+			  DB 10,13,"     $"
     	choice db 0
-	ticketTitle db 10, 13, "    	Type Of Ticket", 10, 13, "$"
-	typeticket db 10, 13, "    	1. Normal", 10, 13, "    	2. VIP", 10, 13, "    	3. Couple",10,13,'$'
-    	purchase_str db 10,13,10,13,	"	-----------------------------------", 10,13, "		    Purchase ", 10, 13, "	-----------------------------------","$"
-    	purchase_choice db 10,13,10,13,"	Enter O to order", 10,13, "	Enter E back to menu",10,13,"	Insert your choice:  $"
-    	strback db 10,13,"		Enter B back to menu: $"
-
+    	purchase_str  	  DB 10,13,"                      ___________________________________"
+			  DB 10,13,"                     |                                   |"
+               		  DB 10,13,"                     |         P u r c h a s e           |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                     |                                   |"
+			  DB 10,13,"                     |     1. Standard (S)               |"
+			  DB 10,13,"                     |     2. VIP (V)                    |"
+			  DB 10,13,"                     |     3. Couple (C)                 |"
+			  DB 10,13,"                     |                                   |"
+			  DB 10,13,"                     |   Back to Menu (B)                |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                                                          "
+			  DB 10,13,"                      Choose your ticket (S,V,C) > $"
+			  DB 10,13,"     $"
+        	  
+	eventContent db 10,13, "	Welcome to our Music Community! ",10,13,"We're super excited to tell you about the TARUMT Music Festival $"
 .code
 main proc
     	mov ax,@data
     	mov ds,ax
-
-    	mov ah,09h
-    	lea dx,str1
-    	int 21h
-    	lea dx,str2
-    	int 21h
-    	lea dx,str3
-    	int 21h
+    	
+     
 
 _start:
     	mov ah, 09h            ; Display the menu
-    	lea dx, menu
+    	lea dx, music_community
     	int 21h
-    	lea dx, menuMsg
-    	int 21h
-
+    	
     	mov ah, 01h            ; Read a single character from the user
     	int 21h
     	sub al, '0'            ; Convert ASCII to numeric
@@ -53,16 +83,9 @@ _start:
     	jmp _start
 
 event_details:
+
     	mov ah,09h
-    	lea dx,str3
-    	int 21h
-    	lea dx,ticketTitle
-    	int 21h
-    	lea dx,str1
-    	int 21h
-    	lea dx,typeticket
-    	int 21h
-    	lea dx,strback 
+    	lea dx,eventTitle
     	int 21h
     	mov ah, 01h            ; Read a single character from the user
     	int 21h
@@ -76,17 +99,7 @@ purchase:
     	mov ah,09h
     	lea dx,purchase_str
     	int 21h
-    	lea dx,str3
-    	int 21h
-    	lea dx,ticketTitle
-    	int 21h
-    	lea dx,str1
-    	int 21h
-    	lea dx,typeticket
-    	int 21h
-    	mov ah, 09h            ; Display the choice
-    	lea dx, purchase_choice
-    	int 21h
+    	
     	mov ah, 01h            ; Read a single character from the user
     	int 21h
     ; Convert the entered character to uppercase (if it's a letter)
@@ -96,7 +109,15 @@ purchase:
     	je order_selected
 	cmp al, 'C'            ; Check for 'C' (Couple)
     	je order_selected
-    	cmp al, 'E'            ; Check for 'E' (Exit)
+	cmp al, 's'            ; Check for 'S' (Standard)
+    	je order_selected
+	cmp al, 'v'            ; Check for 'V' (VIP)
+    	je order_selected
+	cmp al, 'c'            ; Check for 'C' (Couple)
+    	je order_selected
+    	cmp al, 'b'            ; Check for 'b' (Exit)
+	je jumpback
+	cmp al, 'B'            ; Check for 'B' (Exit)
     	je jumpback
 	
     ; Invalid choice
