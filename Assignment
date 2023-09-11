@@ -133,7 +133,7 @@ purchase:
     	mov ah, 09h
     	lea dx, invalidMsg
     	int 21h
-    	je jumpback
+    	jmp purchase
 
 
 jmpexit: 
@@ -234,7 +234,7 @@ invalidQuantity:
     mov ah, 09h             ; Print invalid message
     lea dx, invalidQ
     int 21h 
-    jmp _start 
+    jmp purchase 
 
 
 
