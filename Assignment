@@ -17,19 +17,27 @@
 			  DB 10,13,"                                                          "
 			  DB 10,13,"                      Please select your option (1-4) > $"
     	invalidMsg db 10, 13, "	Invalid choice. Please try again.", 10, 13, "$"
+	Event_logo      DB 10,13,"        oooooooooooo oooooo     oooo oooooooooooo  oooo   ooooo ooooooooo     "
+			DB 10,13,"        `888'     `8  `888.     .8'  `888'     `8  `88.   `888' 8'`888`'8     "
+			DB 10,13,"         888           `888.   .8'    888           888b   888     888        "
+			DB 10,13,"         888oooo8       `888. .8'     888oooo8      8 Y88. 888     888        "
+			DB 10,13,"         888    '        `888.8'      888    '      8   `88'88     888        "   
+			DB 10,13,"         888       o      `888'       888       o   8    '8888     888        "
+			DB 10,13,"        o888ooooood8       `8'       o888ooooood8  o8o    o888o   o888o      "
+			DB 10,13,"$"
+			    
 	eventTitle 	  DB 10,13,"                      ___________________________________"
 			  DB 10,13,"                     |                                   |"
                		  DB 10,13,"                     |      E v e n t  D e t a i l s     |"
 			  DB 10,13,"                     |___________________________________|"
-			  DB 10,13,"                                                          "
 			  DB 10,13,"                        Welcome to our Music Community!   "
 			  DB 10,13,"	    We're super excited to tell you about the TARUMT Music Festival "
 			  DB 10,13,"     We're offering three types of tickets that match what you're looking for"
-			  DB 10,13,"                                                                          "
+			  DB 10,13,"                                                          "
 			  DB 10,13,"                             1)Standard Ticket:"                                              
 			  DB 10,13,"                             2)Couple Ticket: "
 			  DB 10,13,"                             3)VIP Ticket: "
-			  DB 10,13,"                                                                          "
+			  DB 10,13,"                                                          "
 			  DB 10,13,"   Join us at the TARUMT Music Festival, where tunes and moments mix together, "
 			  DB 10,13," and we make memories that stick with us. Let our user-friendly system simplify" 
 	                  DB 10,13,"          your journey towards an unforgettable musical experience.            "
@@ -61,6 +69,15 @@
     	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
     	invalidQ 	db 10,13,"            Invalid quantity. Please enter a number between 1 and 9.$"
     	resultMsg1 	db 10,13,"                      Total price = $"
+	ticket 	 	Db 10,13,10,13
+			DB 10,13,"       ooooooooo ooooo   .oooooo.  ooooo  ooooo oooooooooooo ooooooooo"
+			DB 10,13,"       8'`888`'8 `888'  d8P'  `Y8b `888' `888'  `888'     `8 8'`888`'8"
+			DB 10,13,"          888     888  888          888  o88     888           `888'"
+			DB 10,13,"          888     888  888          888888       888oooo8       888 "
+			DB 10,13,"          888     888  888          888  o88     888    '       888 "   
+			DB 10,13,"          888     888  `88b    ooo  888   888    888       o    888 "
+			DB 10,13,"         o888o   o888o  `Y8bood8P' o888o  o888o o888ooooood8   o888o "
+			DB 10,13,"   $ "                                                                    
 
 .code
 main proc
@@ -94,6 +111,8 @@ _start:
 event_details:
 
     	mov ah,09h
+	lea dx,Event_logo
+	int 21h
     	lea dx,eventTitle
     	int 21h
     	mov ah, 01h            ; Read a single character from the user
@@ -106,6 +125,8 @@ jumpback:
 
 purchase:
     	mov ah,09h
+	lea dx, ticket
+	int 21h
     	lea dx,purchase_str
     	int 21h
     	
@@ -226,8 +247,9 @@ order_couple:
     	 lea dx, resultMsg1
     	int 21h
 
-    	mov ax, total           ; Display Total
-    	call printValue
+    	mov ah, 09h
+	lea dx, total
+	int 21h
     	jmp _start
 
 invalidQuantity:
