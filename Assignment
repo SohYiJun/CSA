@@ -52,7 +52,16 @@
 			  DB 10,13,"                      Choose your ticket (S,V,C) > $"
 			  DB 10,13,"     $"
         	  
-	eventContent db 10,13, "	Welcome to our Music Community! ",10,13,"We're super excited to tell you about the TARUMT Music Festival $"
+	eventContent 	db 10,13, "	Welcome to our Music Community! ",10,13,"We're super excited to tell you about the TARUMT Music Festival $"
+	standard dw 30             ; Fixed price per item
+	vip dw 40
+	couple dw 50
+    	quantity db ?           ; User input for quantity
+    	total dw ?    
+    	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
+    	invalidQ 	db 10,13,"            Invalid quantity. Please enter a number between 1 and 9.$"
+    	resultMsg1 	db 10,13,"                      Total price = $"
+
 .code
 main proc
     	mov ax,@data
@@ -74,7 +83,7 @@ _start:
     	cmp al, 2
     	je purchase
     	cmp al, 4
-    	je exit_program
+    	je jmpexit
 
     ; Invalid choice
     	mov ah, 09h
@@ -104,17 +113,17 @@ purchase:
     	int 21h
     ; Convert the entered character to uppercase (if it's a letter)
     	cmp al, 'S'            ; Check for 'S' (Standard)
-    	je order_selected
+    	je order_standard
 	cmp al, 'V'            ; Check for 'V' (VIP)
-    	je order_selected
-	cmp al, 'C'            ; Check for 'C' (Couple)
-    	je order_selected
+    	je order_vip
 	cmp al, 's'            ; Check for 'S' (Standard)
-    	je order_selected
+    	je order_standard
 	cmp al, 'v'            ; Check for 'V' (VIP)
-    	je order_selected
+    	je order_vip
+	cmp al, 'C'            ; Check for 'C' (Couple)
+    	je order_couple
 	cmp al, 'c'            ; Check for 'C' (Couple)
-    	je order_selected
+    	je order_couple
     	cmp al, 'b'            ; Check for 'b' (Exit)
 	je jumpback
 	cmp al, 'B'            ; Check for 'B' (Exit)
@@ -127,10 +136,130 @@ purchase:
     	je jumpback
 
 
+jmpexit: 
+	jmp exit_program
 
-order_selected:
-    	jmp purchase
-    
+order_standard:
+    	mov ah, 09h             ; Print input message
+    	lea dx, inputMsg
+    	int 21h
+
+    	; Input quantity
+    	mov ah, 01h
+    	int 21h
+    	sub al, '0'             ; Convert ASCII to numeric value
+    	cmp al, 1               ; Check if quantity is at least 1
+    	jl iv
+    	cmp al, 9               ; Check if quantity is at most 9
+    	jg iv
+	
+    	; Calculate total price
+    	mov bl, al              ; Quantity in BL
+    	mov ax, standard           ; Price in AX
+    	mul bx                  ; AX = price * quantity
+    	mov total, ax
+
+	; Display results
+    mov ah, 09h             ; Print result messages
+    lea dx, resultMsg1
+    int 21h
+
+    mov ax, total           ; Display Total
+    call printValue
+    jmp _start
+
+order_vip:
+    	mov ah, 09h             ; Print input message
+    	lea dx, inputMsg
+    	int 21h
+
+    	; Input quantity
+    	mov ah, 01h
+    	int 21h
+    	sub al, '0'             ; Convert ASCII to numeric value
+    	cmp al, 1               ; Check if quantity is at least 1
+    	jl invalidQuantity
+    	cmp al, 9               ; Check if quantity is at most 9
+    	jg invalidQuantity
+	
+    	; Calculate total price
+    	mov bl, al              ; Quantity in BL
+    	mov ax, vip           ; Price in AX
+    	mul bx                  ; AX = price * quantity
+    	mov total, ax
+
+	; Display results
+    mov ah, 09h             ; Print result messages
+    lea dx, resultMsg1
+    int 21h
+
+    mov ax, total           ; Display Total
+    call printValue
+    jmp _start
+
+iv:
+ jmp invalidQuantity
+
+
+order_couple:
+    	mov ah, 09h             ; Print input message
+    	lea dx, inputMsg
+    	int 21h
+
+    	; Input quantity
+    	mov ah, 01h
+    	int 21h
+    	sub al, '0'             ; Convert ASCII to numeric value
+    	cmp al, 1               ; Check if quantity is at least 1
+    	jl invalidQuantity
+    	cmp al, 9               ; Check if quantity is at most 9
+    	jg invalidQuantity
+	
+    	; Calculate total price
+    	mov bl, al              ; Quantity in BL
+    	mov ax, couple           ; Price in AX
+    	mul bx                  ; AX = price * quantity
+    	mov total, ax
+
+	; Display results
+   	 mov ah, 09h             ; Print result messages
+    	 lea dx, resultMsg1
+    	int 21h
+
+    	mov ax, total           ; Display Total
+    	call printValue
+    	jmp _start
+
+invalidQuantity:
+    mov ah, 09h             ; Print invalid message
+    lea dx, invalidQ
+    int 21h 
+    jmp _start 
+
+
+
+printValue:
+    push ax
+    mov cx, 0
+    mov bx, 10
+
+    nextDigit:
+        xor dx, dx          ; Clear DX for division
+        div bx              ; Divide AX by 10, result in AX, remainder in DX
+        push dx             ; Push the remainder onto the stack
+        inc cx              ; Increment digit count
+        test ax, ax         ; Check if quotient is zero
+        jnz nextDigit
+
+    printDigits:
+        pop dx              ; Pop a digit from the stack
+        add dl, '0'         ; Convert digit to ASCII
+        mov ah, 02h         ; DOS function to print character
+        int 21h
+        loop printDigits
+
+    pop ax
+    ret  
 
 exit_program:
     	mov ah, 4Ch        ; Set the function code for program termination
