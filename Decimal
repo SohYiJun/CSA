@@ -1,0 +1,137 @@
+.model small
+.stack 100
+.data
+    message db 10, 13, "Enter quantity of ticket (1-9): $"
+    invalidMessage db 10, 13, "Invalid input. Enter a number between 1 and 9.$"
+    totalPriceMsg db 10, 13, "Total price = $"
+    sstMsg db 10, 13, "SST = $"
+    grandTotalMsg db 10, 13, "Grand total = $"
+    newline db 10, 13, "$"
+    fixedPrice dw 30
+    quantity db ?
+    total dw ?
+    sst_quotient db ?
+    sst_remainder db ?
+    grand_total dw ?
+
+.code
+main proc
+    mov ax, @data
+    mov ds, ax
+
+    ; Display the message and get user input
+    mov ah, 09h
+    lea dx, message
+    int 21h
+
+    ; Read user input
+    mov ah, 01h
+    int 21h
+    sub al, 30h   ; Convert ASCII digit to numeric value
+    cmp al, 1     ; Check if quantity is greater than or equal to 1
+    jl invalid_input
+    cmp al, 9     ; Check if quantity is less than or equal to 9
+    jg invalid_input
+
+    ; Calculate total price
+    mov bl, al        ; Copy quantity to BL
+    mov ax, [fixedPrice]
+    mul bl             ; AX = fixedPrice * quantity
+    mov [total], ax   ; Store the total
+
+    ; Display total price
+    mov ah, 09h
+    lea dx, totalPriceMsg
+    int 21h
+
+    mov ax, [total]
+    call print_decimal
+
+    ; Calculate SST 
+    mov ax, word ptr [total]
+    mov cx, 5         ; 5% SST rate
+    mul cx
+    mov cx,100
+  div cx
+
+    ; Store SST quotient and remainder
+    mov [sst_quotient], al
+    mov [sst_remainder], ah
+
+    ; Display SST
+    mov ah, 09h
+    lea dx, sstMsg
+    int 21h
+
+    mov al, [sst_quotient]
+    call print_decimal
+    mov dl, '.'
+    mov ah, 02h
+    int 21h
+    mov al, [sst_remainder]
+    call print_decimal
+
+; Calculate grand total
+mov ax, word ptr [total]
+mov bx, word ptr [sst_quotient]
+add ax, bx
+mov word ptr [grand_total], ax
+
+
+    ; Display grand total
+    mov ah, 09h
+    lea dx, grandTotalMsg
+    int 21h
+
+    mov ax, [grand_total]
+    call print_decimal
+    mov dl, '.'
+    mov ah, 02h
+    int 21h
+
+    jmp exit
+
+invalid_input:
+    mov ah, 09h
+    lea dx, invalidMessage
+    int 21h
+
+exit:
+    mov ah, 4Ch     ; Exit to DOS
+    int 21h
+
+print_decimal:
+    push ax
+    push bx
+    push cx
+    push dx
+
+    mov bx, 10     ; BX = 10 (divisor)
+
+    mov cx, 0      ; Initialize digit counter
+
+    ; Loop to extract digits in reverse order
+    extract_digit:
+        xor dx, dx     ; Clear DX for division
+        div bx         ; AX / 10 -> AX = quotient, DX = remainder
+        push dx        ; Push the remainder onto the stack
+        inc cx         ; Increment digit counter
+        test ax, ax    ; Check if quotient is zero
+        jnz extract_digit
+
+    ; Loop to print digits from the stack
+    print_digit:
+        pop dx         ; Pop a digit from the stack
+        add dl, '0'    ; Convert digit to ASCII
+        mov ah, 02h    ; Print character function
+        int 21h
+        loop print_digit
+
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    ret
+
+main endp
+end main
