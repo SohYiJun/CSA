@@ -40,7 +40,7 @@
 			  DB 10,13,10,13,"                                                          "
 			  DB 10,13,"$"
  		select	  DB 10,13,"                      Please select your option (1-4) > $"
-    	invalidMsg db 10, 13, "	              Invalid choice. Please try again.", 10, 13, "$"
+    	invalidMsg db 10, 13, "	               Invalid choice. Please try again.", 10, 13, "$"
 	Event_logo      DB 10,13
 			DB 10,13,"        oooooooooooo oooooo     oooo oooooooooooo  oooo   ooooo ooooooooo     "
 			DB 10,13,"        `888'     `8  `888.     .8'  `888'     `8  `88.   `888' 8'`888`'8     "
@@ -154,12 +154,17 @@ _start:
     	mov ah, 09h            ; Display the menu
     	lea dx, menu
     	int 21h
-    	
+
+promtChoice:  
+	mov ah, 09h            ; Display promt message
+    	lea dx, select
+    	int 21h
+
     	mov ah, 01h            ; Read a single character from the user
     	int 21h
     	sub al, '0'            ; Convert ASCII to numeric
 
-promtChoice:
+
     	cmp al, 1
     	je event_details
     	cmp al, 2
@@ -173,7 +178,7 @@ promtChoice:
     	mov ah, 09h
     	lea dx, invalidMsg
     	int 21h
-    	jmp _promtChoice
+    	jmp promtChoice
 
 cart1:
 	call cart
