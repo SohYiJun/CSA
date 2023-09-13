@@ -101,8 +101,9 @@
 			DB 10,13,"              `Y8bood8P' o888o o888o o888o  o888o   o888o       " 
 			DB 10,13,"  $"   
 	standard dw 30             ; Fixed price per item
-	vip dw 40
 	couple dw 50
+	vip dw 65
+	
     	quantity db ?           ; User input for quantity
     	total dw ?     
     	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
