@@ -1,7 +1,7 @@
 .model small
 .stack 100
 .data 
-	endliao   db "Programme ended! type'hi' to start over"
+	endliao   db "Programme ended! type'bye' to start over"
 	newline   db 13,10,"$"
         welcome   db 13,10,"--------------Welcome to Music Community--------------$"
 	register  db 13,10,"1.Register as a member.$"
@@ -14,17 +14,17 @@
 	passstr2  db 13,10,"Enter your password:$"
 	test2     db 13,10,"login$"
 	test3     db 13,10,"<Action Successfull,proceeded to next action>$"
-	Username LABEL       BYTE
-        MAX       DB          51
-        CUST      DB              ?
-        Username_array   DB  51 DUP ("$")
-	password db 21 dup('$')
-     
+	
+	user1      db   9 dup ("h$")
+	password1  db   9 dup ("$")
+     	tempuser   db	9 dup("h$")
+	temppass   db   9 dup("$")
+	invalidu db "Invalid User/Password,Please Try Again!$"
 .code
 main proc
 	mov ax,@data
 	mov ds,ax
-hello:
+starting:
 	mov ah,09h
 	lea dx,welcome
 	int 21h
@@ -51,7 +51,7 @@ hello:
         JE   Registration_page
         CMP  AL,32H
         JE   Login_page
-        JMP Byebye
+        JMP  Byebye
 
 Registration_page:
 	
@@ -59,15 +59,17 @@ Registration_page:
 	lea dx,namestr1
 	int 21h
 	
-	lea dx,Username
 	mov ah, 0Ah
+	mov dx,offset user1
         int 21h
+
+	mov si,offset user1
 	
 	mov ah,09h
 	lea dx,passstr1
 	int 21h
 
-	lea dx,password
+	lea dx,password1
 	mov ah,0Ah
 	int 21h
 	JMP Continue
@@ -76,10 +78,61 @@ Login_page:
 	mov ah,09h
 	lea dx,namestr2
 	int 21h
+	
+	mov ah, 0Ah
+	mov dx,offset tempuser
+        int 21h
+	mov di,offset tempuser
+
+	mov cx,8
+	
+	
+hi:
+	mov al,[si]
+	mov bl,[di]
+	CMP al,bl
+	JNE NotEqual
+	CMP al,0
+	JE Equal
+	INC SI
+	INC DI
+	DEC CX          ; Decrement the character count
+    	JNZ hi
+bye:
+	mov al,[si]
+	mov bl,[di]
+	CMP al,bl
+	JNE NotEqual
+	CMP al,0
+	JE Equal
+	INC SI
+	INC DI
+	DEC CX          ; Decrement the character count
+    	JNZ Continue
+	
+
+NotEqual:
+	mov ah,09h
+	lea dx,invalidu
+	int 21h
+	JMP starting
+
+	
+Equal:
 	mov ah,09h
 	lea dx,passstr2
 	int 21h
-	JMP Continue
+
+	lea dx,temppass
+	mov ah,0Ah
+	int 21h
+	
+	mov si,offset passstr2
+	mov di,offset temppass
+
+	mov cx,8
+	JMP bye
+	
 
 Continue:
 	mov ah,09h
@@ -90,7 +143,7 @@ Continue:
 	lea dx,test3
 	int 21h
 
-	JMP hello
+	JMP starting
 
 Byebye:
 
