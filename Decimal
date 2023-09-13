@@ -58,18 +58,21 @@ main proc
     mov [sst_quotient], al
     mov [sst_remainder], ah
 
-    ; Display SST
-    mov ah, 09h
-    lea dx, sstMsg
-    int 21h
+   ; Display SST
+mov ah, 09h
+lea dx, sstMsg
+int 21h
 
-    mov al, [sst_quotient]
-    call print_decimal
-    mov dl, '.'
-    mov ah, 02h
-    int 21h
-    mov al, [sst_remainder]
-    call print_decimal
+mov al, [sst_quotient]
+mov ah, 0    ; Clear AH to ensure it's zero
+call print_decimal
+mov dl, '.'
+mov ah, 02h
+int 21h
+
+mov al, [sst_remainder]
+call print_decimal
+
 
 ; Calculate grand total
 mov ax, word ptr [total]
