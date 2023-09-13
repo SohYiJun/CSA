@@ -17,7 +17,7 @@
 			DB 10,13,"       `88b    ooo  888    888   8    Y     888    8    Y     888         "
 			DB 10,13,"        `Y8bood8P'   `888888'   o8o        o888o  o8o        o888o        " 
 			DB 10,13,"  $"
-	press		  DB 10,13,10,13,"      P L E A S E   E N T E R   A N Y   K E Y   T O   C O N T I N U E . . ."
+	press		  DB 10,13,10,13,10,13,"      P L E A S E   E N T E R   A N Y   K E Y   T O   C O N T I N U E . . ."
 			  DB 10,13,10,13,"$"
  	menu  DB 10,13,10,13,10,13,"           ooo        ooooo  oooooooooooo  oooo   ooooo  oooo   ooooo     "
 			  DB 10,13,"           `88.       .888'  `888'     `8  `88.   `888'  `88'   `888'     "
@@ -81,14 +81,7 @@
 			  DB 10,13,"     $"
         	  
 	eventContent 	db 10,13, "	Welcome to our Music Community! ",10,13,"We're super excited to tell you about the TARUMT Music Festival $"
-	standard dw 30             ; Fixed price per item
-	vip dw 40
-	couple dw 50
-    	quantity db ?           ; User input for quantity
-    	total dw ?    
-    	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
-    	invalidQ 	db 10,13,"            Invalid quantity. Please enter a number between 1 and 9.$"
-    	resultMsg1 	db 10,13,"                      Total price = $"
+	
 	ticket 	 	Db 10,13,10,13
 			DB 10,13,"       ooooooooo ooooo   .oooooo.  ooooo  ooooo oooooooooooo ooooooooo"
 			DB 10,13,"       8'`888`'8 `888'  d8P'  `Y8b `888' `888'  `888'     `8 8'`888`'8"
@@ -106,7 +99,38 @@
 			DB 10,13,"             888          d8888888b   888  o88       888        " 
 			DB 10,13,"             `88b    ooo  888   888   888   888      888        "
 			DB 10,13,"              `Y8bood8P' o888o o888o o888o  o888o   o888o       " 
-			DB 10,13,"  $"                                                                   
+			DB 10,13,"  $"   
+	standard dw 30             ; Fixed price per item
+	vip dw 40
+	couple dw 50
+    	quantity db ?           ; User input for quantity
+    	total dw ?     
+    	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
+    	invalidQ 	db 10,13,"            Invalid input. Please enter a number between 1 and 9.$"
+    	resultMsg1 	db 10,13,"                       Total price  = RM $                "
+	sstMsg 		db 10,13,"                       SST          = RM $                "
+	grandTotalMsg 	db 10,13,"                       Grand total  = RM $                "
+	lastline	DB 10,13,"                      ___________________________________$"
+	standardTAP	DB 10,13,"                      ___________________________________"
+			DB 10,13,"                       Ticket Type  > Standard"
+			DB 10,13,"                       Ticket Price > RM 30 $"
+	VIPTAP		DB 10,13,"                      ___________________________________"
+			DB 10,13,"                       Ticket Type  > VIP"
+			DB 10,13,"                       Ticket Price > RM 65 $"
+	coupleTAP	DB 10,13,"                      ___________________________________"
+			DB 10,13,"                       Ticket Type  > Couple"
+			DB 10,13,"                       Ticket Price > RM 50 $"
+	confirm      	DB 10,13,"                     Confirm add to cart (Y-Yes,N-No) >  $"
+	added	     	DB 10,13
+			DB 10,13,"                         +Successfully Added to Cart +$"
+	cancelled    	DB 10,13
+			DB 10,13,"                          + Successfully Cancelled +$"
+	continue	DB 10,13
+			DB 10,13,"                     Continue Purchase ? (Y-Yes, N-No) > $"
+    	newline db 10, 13, "$"
+    	sst_quotient dw ?
+    	sst_remainder dw ?
+    	grand_total dw ?                                                                
 
 .code
 main proc
@@ -175,30 +199,32 @@ purchase:
     	
     	mov ah, 01h            ; Read a single character from the user
     	int 21h
-    ; Convert the entered character to uppercase (if it's a letter)
-    	cmp al, 'S'            ; Check for 'S' (Standard)
+    	
+	; Convert the input character to uppercase (if it's a lowercase letter)
+    	cmp al, 'a'
+    	jl not_lowercase
+    	cmp al, 'z'
+    	jg not_lowercase
+    	sub al, 32             ; Convert lowercase to uppercase
+    
+not_lowercase:
+	cmp al, 'S'            ; Check for 'S' (Standard)
     	je order_standard
 	cmp al, 'V'            ; Check for 'V' (VIP)
     	je order_vip
-	cmp al, 's'            ; Check for 'S' (Standard)
-    	je order_standard
-	cmp al, 'v'            ; Check for 'V' (VIP)
-    	je order_vip
-	cmp al, 'C'            ; Check for 'C' (Couple)
-    	je order_couple
-	cmp al, 'c'            ; Check for 'C' (Couple)
-    	je order_couple
-    	cmp al, 'b'            ; Check for 'b' (Exit)
-	je jumpback
 	cmp al, 'B'            ; Check for 'B' (Exit)
     	je jumpback
-	
+	cmp al, 'C'            ; Check for 'C' (Couple)
+    	je order_coople
+
     ; Invalid choice
     	mov ah, 09h
     	lea dx, invalidMsg
     	int 21h
     	jmp purchase
 
+order_coople:
+	call order_couple
 
 jmpexit: 
 	jmp exit_program
@@ -224,13 +250,19 @@ order_standard:
     	mov total, ax
 
 	; Display results
-    mov ah, 09h             ; Print result messages
-    lea dx, resultMsg1
-    int 21h
+    	mov ah, 09h             ; Print result messages
+	lea dx, standardTAP
+	int 21h
+    	lea dx, resultMsg1
+    	int 21h
 
-    mov ax, total           ; Display Total
-    call printValue
-    jmp _start
+    	mov ax, total           ; Display Total
+    	call print_decimal
+	
+	;mov ah, 09h
+	;lea dx,resultMsg1
+	;int 21h
+    	jmp calculateSST
 
 order_vip:
     	mov ah, 09h             ; Print input message
@@ -253,13 +285,15 @@ order_vip:
     	mov total, ax
 
 	; Display results
-    mov ah, 09h             ; Print result messages
-    lea dx, resultMsg1
-    int 21h
-
-    mov ax, total           ; Display Total
-    call printValue
-    jmp _start
+    	mov ah, 09h             ; Print result messages
+    	lea dx, VIPTAP
+	int 21h
+	lea dx, resultMsg1
+    	int 21h
+	
+    	mov ax, total           ; Display Total
+    	call print_decimal
+    	jmp calculateSST
 
 iv:
  jmp invalidQuantity
@@ -287,13 +321,14 @@ order_couple:
 
 	; Display results
    	 mov ah, 09h             ; Print result messages
-    	 lea dx, resultMsg1
+    	lea dx, coupleTAP
+	int 21h 
+	lea dx, resultMsg1
     	int 21h
 
-    	mov ah, 09h
-	lea dx, total
-	int 21h
-    	jmp _start
+    	mov ax, total           ; Display Total
+    	call print_decimal
+    	jmp calculateSST
 
 invalidQuantity:
     mov ah, 09h             ; Print invalid message
@@ -301,30 +336,155 @@ invalidQuantity:
     int 21h 
     jmp purchase 
 
+calculateSST:
+	 mov cx, 5         ; 5% SST rate
+    mul cx
+    mov bx,100
+    div bx
+
+    ; Store SST quotient and remainder
+    mov [sst_quotient], ax
+    mov [sst_remainder], dx
+
+   ; Display SST
+	mov ah, 09h
+	lea dx, sstMsg
+	int 21h
+	
+	mov ax, [sst_quotient]
+	mov ah, 0    ; Clear AH to ensure it's zero
+	call print_decimal
+	mov dl, '.'
+	mov ah, 02h
+	int 21h
+
+	mov ax,0
+	mov ax, [sst_remainder]
+	call print_decimal
 
 
-printValue:
+; Calculate grand total
+	mov ax, [total]
+	mov bx, [sst_quotient]
+	add ax, bx
+	mov word ptr [grand_total], ax
+
+
+    ; Display grand total
+    	mov ah, 09h
+    	lea dx, grandTotalMsg
+    	int 21h
+
+    	mov ax, [grand_total]
+    	call print_decimal
+    	mov dl, '.'
+    	mov ah, 02h
+    	int 21h
+
+	mov ax,0
+	mov ax, [sst_remainder]
+	call print_decimal
+	mov ah,09h
+	lea dx, lastline
+	int 21h
+	jmp confirmation
+
+confirmation:
+	mov ah,09h
+	lea dx, confirm
+	int 21h
+	mov ah, 01h
+	int 21h
+	cmp al, 'a'
+    	jl YesNo
+    	cmp al, 'z'
+    	jg YesNo
+    	sub al, 32  
+    
+YesNo:
+	cmp al, "Y"
+	je successadd
+	cmp al, "N"
+	je cancelledCart
+	
+	; Invalid choice
+    	mov ah, 09h
+    	lea dx, invalidMsg
+    	int 21h
+    	jmp confirmation
+
+successadd:
+	mov ah,09h
+	lea dx,added
+	int 21h
+	jmp continueOrder
+
+cancelledCart:
+	mov ah,09h
+	lea dx,cancelled
+	int 21h 
+	jmp purchase
+	
+purchase1:
+	call purchase
+
+continueOrder:
+	mov ah,09h
+	lea dx, continue
+	int 21h
+	mov ah, 01h
+	int 21h
+	cmp al, 'a'
+    	jl conOrder
+    	cmp al, 'z'
+    	jg conOrder
+    	sub al, 32 
+     
+conOrder:
+	cmp al, "Y"
+	je purchase1
+	cmp al, "N"
+	je cart
+	
+	; Invalid choice
+    	mov ah, 09h
+    	lea dx, invalidMsg
+    	int 21h
+    	jmp continueOrder
+
+print_decimal:
     push ax
-    mov cx, 0
-    mov bx, 10
+    push bx
+    push cx
+    push dx
 
-    nextDigit:
-        xor dx, dx          ; Clear DX for division
-        div bx              ; Divide AX by 10, result in AX, remainder in DX
-        push dx             ; Push the remainder onto the stack
-        inc cx              ; Increment digit count
-        test ax, ax         ; Check if quotient is zero
-        jnz nextDigit
+    mov bx, 10     ; BX = 10 (divisor)
 
-    printDigits:
-        pop dx              ; Pop a digit from the stack
-        add dl, '0'         ; Convert digit to ASCII
-        mov ah, 02h         ; DOS function to print character
+    mov cx, 0      ; Initialize digit counter
+
+    ; Loop to extract digits in reverse order
+
+    extract_digit:
+        xor dx, dx     ; Clear DX for division
+        div bx         ; AX / 10 -> AX = quotient, DX = remainder
+        push dx        ; Push the remainder onto the stack
+        inc cx         ; Increment digit counter
+        test ax, ax    ; Check if quotient is zero
+        jnz extract_digit
+
+    ; Loop to print digits from the stack
+    print_digit:
+        pop dx         ; Pop a digit from the stack
+        add dl, '0'    ; Convert digit to ASCII
+        mov ah, 02h    ; Print character function
         int 21h
-        loop printDigits
+        loop print_digit
 
+    pop dx
+    pop cx
+    pop bx
     pop ax
-    ret  
+    ret
 
 cart:
 	mov ah,09h
