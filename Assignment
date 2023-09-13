@@ -77,8 +77,9 @@
 			  DB 10,13,"                     |                                   |"
 			  DB 10,13,"                     |   Back to Menu (B)                |"
 			  DB 10,13,"                     |___________________________________|"
-			  DB 10,13,"                                                          "
-			  DB 10,13,"                      Choose your ticket (S,V,C) > $ "
+			  DB 10,13,"                 $                                         "
+			 
+	select_tic  DB 10,13,"                      Choose your ticket (S,V,C) > $ "
 			  DB 10,13,"     $"
         	  
 	eventContent 	db 10,13, "	Welcome to our Music Community! ",10,13,"We're super excited to tell you about the TARUMT Music Festival $"
@@ -164,7 +165,6 @@ promtChoice:
     	int 21h
     	sub al, '0'            ; Convert ASCII to numeric
 
-
     	cmp al, 1
     	je event_details
     	cmp al, 2
@@ -184,7 +184,6 @@ cart1:
 	call cart
 
 event_details:
-
     	mov ah,09h
 	lea dx,Event_logo
 	int 21h
@@ -203,6 +202,10 @@ purchase:
 	lea dx, ticket
 	int 21h
     	lea dx,purchase_str
+    	int 21h
+
+retry:
+	lea dx,select_tic
     	int 21h
     	
     	mov ah, 01h            ; Read a single character from the user
@@ -229,8 +232,9 @@ not_lowercase:
     	mov ah, 09h
     	lea dx, invalidMsg
     	int 21h
-    	jmp purchase
+    	jmp retry
 
+	
 order_coople:
 	call order_couple
 
