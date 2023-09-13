@@ -38,8 +38,9 @@
 			  DB 10,13,"                     |   4. Exit                         |"
 			  DB 10,13,"                     |___________________________________|"
 			  DB 10,13,10,13,"                                                          "
-			  DB 10,13,"                      Please select your option (1-4) > $"
-    	invalidMsg db 10, 13, "	Invalid choice. Please try again.", 10, 13, "$"
+			  DB 10,13,"$"
+ 		select	  DB 10,13,"                      Please select your option (1-4) > $"
+    	invalidMsg db 10, 13, "	              Invalid choice. Please try again.", 10, 13, "$"
 	Event_logo      DB 10,13
 			DB 10,13,"        oooooooooooo oooooo     oooo oooooooooooo  oooo   ooooo ooooooooo     "
 			DB 10,13,"        `888'     `8  `888.     .8'  `888'     `8  `88.   `888' 8'`888`'8     "
@@ -158,6 +159,7 @@ _start:
     	int 21h
     	sub al, '0'            ; Convert ASCII to numeric
 
+promtChoice:
     	cmp al, 1
     	je event_details
     	cmp al, 2
@@ -171,7 +173,7 @@ _start:
     	mov ah, 09h
     	lea dx, invalidMsg
     	int 21h
-    	jmp _start
+    	jmp _promtChoice
 
 cart1:
 	call cart
