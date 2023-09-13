@@ -1,0 +1,109 @@
+.model small
+.stack 100
+.data 
+	endliao   db "Programme ended! type'hi' to start over"
+	newline   db 13,10,"$"
+        welcome   db 13,10,"--------------Welcome to Music Community--------------$"
+	register  db 13,10,"1.Register as a member.$"
+	login     db 13,10,"2.Login as a member.$"
+	exit 	  db 13,10,"3.Exit.$"
+	selection db 13,10,"Your selection:$"
+	namestr1  db 13,10,"Enter user name:$"
+	namestr2  db 13,10,"Enter your username:$"
+	passstr1  db 13,10,"Enter password:$"
+	passstr2  db 13,10,"Enter your password:$"
+	test2     db 13,10,"login$"
+	test3     db 13,10,"<Action Successfull,proceeded to next action>$"
+	Username LABEL       BYTE
+        MAX       DB          51
+        CUST      DB              ?
+        Username_array   DB  51 DUP ("$")
+	password db 21 dup('$')
+     
+.code
+main proc
+	mov ax,@data
+	mov ds,ax
+hello:
+	mov ah,09h
+	lea dx,welcome
+	int 21h
+
+	mov ah,09h
+	lea dx,register
+	int 21h
+
+	mov ah,09h
+	lea dx,login
+	int 21h
+
+	mov ah,09h
+	lea dx,exit
+	int 21h
+
+	mov ah,09h
+	lea dx,selection
+	int 21h
+;process:
+	MOV  AH,01H
+        INT  21H
+        CMP  AL,31H
+        JE   Registration_page
+        CMP  AL,32H
+        JE   Login_page
+        JMP Byebye
+
+Registration_page:
+	
+	mov ah,09h
+	lea dx,namestr1
+	int 21h
+	
+	lea dx,Username
+	mov ah, 0Ah
+        int 21h
+	
+	mov ah,09h
+	lea dx,passstr1
+	int 21h
+
+	lea dx,password
+	mov ah,0Ah
+	int 21h
+	JMP Continue
+
+Login_page:
+	mov ah,09h
+	lea dx,namestr2
+	int 21h
+	mov ah,09h
+	lea dx,passstr2
+	int 21h
+	JMP Continue
+
+Continue:
+	mov ah,09h
+	lea dx,newline
+	int 21h	
+
+	mov ah,09h
+	lea dx,test3
+	int 21h
+
+	JMP hello
+
+Byebye:
+
+	mov ah,09h
+	lea dx,newline
+	int 21h	
+
+	mov ah,09h
+	lea dx,endliao
+	int 21h
+	
+	mov ah,4ch
+        int 21h
+
+main endp
+end main
