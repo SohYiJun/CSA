@@ -7,11 +7,11 @@
     sstMsg db 10, 13, "SST = $"
     grandTotalMsg db 10, 13, "Grand total = $"
     newline db 10, 13, "$"
-    fixedPrice dw 30
+    fixedPrice dw 150
     quantity db ?
     total dw ?
-    sst_quotient db ?
-    sst_remainder db ?
+    sst_quotient dw ?
+    sst_remainder dw ?
     grand_total dw ?
 
 .code
@@ -48,35 +48,36 @@ main proc
     call print_decimal
 
     ; Calculate SST 
-    mov ax, word ptr [total]
+    
     mov cx, 5         ; 5% SST rate
     mul cx
-    mov cx,100
-  div cx
+    mov bx,100
+    div bx
 
     ; Store SST quotient and remainder
-    mov [sst_quotient], al
-    mov [sst_remainder], ah
+    mov [sst_quotient], ax
+    mov [sst_remainder], dx
 
    ; Display SST
 mov ah, 09h
 lea dx, sstMsg
 int 21h
 
-mov al, [sst_quotient]
+mov ax, [sst_quotient]
 mov ah, 0    ; Clear AH to ensure it's zero
 call print_decimal
 mov dl, '.'
 mov ah, 02h
 int 21h
 
-mov al, [sst_remainder]
+mov ax,0
+mov ax, [sst_remainder]
 call print_decimal
 
 
 ; Calculate grand total
-mov ax, word ptr [total]
-mov bx, word ptr [sst_quotient]
+mov ax, [total]
+mov bx, [sst_quotient]
 add ax, bx
 mov word ptr [grand_total], ax
 
@@ -91,6 +92,10 @@ mov word ptr [grand_total], ax
     mov dl, '.'
     mov ah, 02h
     int 21h
+
+mov ax,0
+mov ax, [sst_remainder]
+call print_decimal
 
     jmp exit
 
@@ -114,6 +119,7 @@ print_decimal:
     mov cx, 0      ; Initialize digit counter
 
     ; Loop to extract digits in reverse order
+
     extract_digit:
         xor dx, dx     ; Clear DX for division
         div bx         ; AX / 10 -> AX = quotient, DX = remainder
