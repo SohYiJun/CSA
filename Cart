@@ -1,0 +1,604 @@
+.model small
+.stack 100
+.data
+    	music_community	DB 10,13,"      ooo        ooooo  oooo   ooooo  .oooooo.    ooooo    .oooooo.     "
+			DB 10,13,"      `88.       .888'  `88'   `888' d8b'  'dYb   `888'   d8P'  `Y8b    "
+			DB 10,13,"       888b     d'888    88     888  `88b   `8'    888   888            "
+			DB 10,13,"       8 Y88. .P  888    88     888     `88b       888   888            "
+			DB 10,13,"       8  `888'   888    88     888  .8.   `88b    888   888            "   
+			DB 10,13,"       8    Y     888    88     88b  d8b.  .d8b'   888   `88b    ooo    "
+			DB 10,13,"      o8o        o888o   `Y8bood8P'   `888888'    o888o   `Y8bood8P'    " 
+			DB 10,13,"                                                                        "
+			DB 10,13,"         .oooooo.    .oooooo.   ooo        ooooo  ooo        ooooo        "
+			DB 10,13,"        d8P'  `Y8b  d8P'  `Y8b  `88.       .888'  `88.       .888'        "
+			DB 10,13,"       888          888    888   888b     d'888    888b     d'888         "
+			DB 10,13,"       888          888    888   8 Y88. .P  888    8 Y88. .P  888         "
+			DB 10,13,"       888          888    888   8  `888'   888    8  `888'   888         " 
+			DB 10,13,"       `88b    ooo  888    888   8    Y     888    8    Y     888         "
+			DB 10,13,"        `Y8bood8P'   `888888'   o8o        o888o  o8o        o888o        " 
+			DB 10,13,"  $"
+	press		  DB 10,13,10,13,10,13,"      P L E A S E   E N T E R   A N Y   K E Y   T O   C O N T I N U E . . ."
+			  DB 10,13,10,13,"$"
+ 	menu  DB 10,13,10,13,10,13,"           ooo        ooooo  oooooooooooo  oooo   ooooo  oooo   ooooo     "
+			  DB 10,13,"           `88.       .888'  `888'     `8  `88.   `888'  `88'   `888'     "
+			  DB 10,13,"            888b     d'888    888           888b   888    88     888      "
+			  DB 10,13,"            8 Y88. .P  888    888oooo8      8 Y88. 888    88     888      "
+			  DB 10,13,"            8  `888'   888    888    '      8   `88'88    88     888      "   
+			  DB 10,13,"            8    Y     888    888       o   8    '8888    88     88b      "
+			  DB 10,13,"           o8o        o888o  o888ooooood8  o8o    o888o   `Y8bood8P'      "
+			  DB 10,13
+			  DB 10,13,"                      ___________________________________"
+			  DB 10,13,"                     |                                   |"
+               		  DB 10,13,"                     |            M  E  N  U             |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                     |                                   |"
+			  DB 10,13,"                     |   1. Event Details                |"
+			  DB 10,13,"                     |   2. Purchase                     |"
+			  DB 10,13,"                     |   3. Cart History                 |"
+			  DB 10,13,"                     |   4. Exit                         |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,10,13,"                                                          "
+			  DB 10,13,"$"
+ 		select	  DB 10,13,"                      Please select your option (1-4) > $"
+    	invalidMsg db 10, 13, "	               Invalid choice. Please try again.", 10, 13, "$"
+	Event_logo      DB 10,13
+			DB 10,13,"        oooooooooooo oooooo     oooo oooooooooooo  oooo   ooooo ooooooooo     "
+			DB 10,13,"        `888'     `8  `888.     .8'  `888'     `8  `88.   `888' 8'`888`'8     "
+			DB 10,13,"         888           `888.   .8'    888           888b   888     888        "
+			DB 10,13,"         888oooo8       `888. .8'     888oooo8      8 Y88. 888     888        "
+			DB 10,13,"         888    '        `888.8'      888    '      8   `88'88     888        "   
+			DB 10,13,"         888       o      `888'       888       o   8    '8888     888        "
+			DB 10,13,"        o888ooooood8       `8'       o888ooooood8  o8o    o888o   o888o      "
+			DB 10,13,"$"
+	eventTitle 	  DB 10,13," ______________________________________________________________________________"
+               		  DB 10,13,"                        Welcome to our Music Community!   "
+			  DB 10,13,"	    We're super excited to tell you about the TARUMT Music Festival "
+			  DB 10,13,"     We're offering three types of tickets that match what you're looking for"
+			  DB 10,13,"                                                          "
+			  DB 10,13,"                             1)Standard Ticket:"                                              
+			  DB 10,13,"                             2)Couple Ticket: "
+			  DB 10,13,"                             3)VIP Ticket: "
+			  DB 10,13,"                                                          "
+			  DB 10,13,"   Join us at the TARUMT Music Festival, where tunes and moments mix together, "
+			  DB 10,13,"    and we make memories that stick with us. Let our user-friendly system " 
+	                  DB 10,13,"     simplify your journey towards an unforgettable musical experience.     "
+			  DB 10,13," ______________________________________________________________________________ "
+			  db 10,13,"  P L E A S E   E N T E R   A N Y   K E Y  T O   B A C K   M E N U . . ."
+			  DB 10,13,"     $"
+    	choice db 0
+    	purchase_str  	  DB 10,13,"                      ___________________________________"
+			  DB 10,13,"                     |                                   |"
+               		  DB 10,13,"                     |         P u r c h a s e           |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                     |                                   |"
+			  DB 10,13,"                     |     1. Standard (S)               |"
+			  DB 10,13,"                     |     2. VIP (V)                    |"
+			  DB 10,13,"                     |     3. Couple (C)                 |"
+			  DB 10,13,"                     |                                   |"
+			  DB 10,13,"                     |   Back to Menu (B)                |"
+			  DB 10,13,"                     |___________________________________|"
+			  DB 10,13,"                 $                                         "
+			 
+	select_tic  DB 10,13,"                      Choose your ticket (S,V,C) > $ "
+			  DB 10,13,"     $"
+        	  
+	eventContent 	db 10,13, "	Welcome to our Music Community! ",10,13,"We're super excited to tell you about the TARUMT Music Festival $"
+	
+	ticket 	 	Db 10,13,10,13
+			DB 10,13,"       ooooooooo ooooo   .oooooo.  ooooo  ooooo oooooooooooo ooooooooo"
+			DB 10,13,"       8'`888`'8 `888'  d8P'  `Y8b `888' `888'  `888'     `8 8'`888`'8"
+			DB 10,13,"          888     888  888          888  o88     888           `888'"
+			DB 10,13,"          888     888  888          888888       888oooo8       888 "
+			DB 10,13,"          888     888  888          888  o88     888    '       888 "   
+			DB 10,13,"          888     888  `88b    ooo  888   888    888       o    888 "
+			DB 10,13,"         o888o   o888o  `Y8bood8P' o888o  o888o o888ooooood8   o888o "
+			DB 10,13,"   $ " 
+	cart_logo	DB 10,13,10,13,10,13
+			DB 10,13,"               .oooooo.      ooo     oooooooo.    ooooooooo     "
+			DB 10,13,"              d8P'  `Y8b    d8 8b    `888' '88b   8'`888`'8     "
+			DB 10,13,"             888           d8' '8b    888   d88      888        "
+			DB 10,13,"             888           88. .88    88888888'      888        "
+			DB 10,13,"             888          d8888888b   888  o88       888        " 
+			DB 10,13,"             `88b    ooo  888   888   888   888      888        "
+			DB 10,13,"              `Y8bood8P' o888o o888o o888o  o888o   o888o       " 
+			DB 10,13,"  $"   
+	standard dw 30             ; Fixed price per item
+	couple dw 50
+	vip dw 65
+	
+    	quantity db ?           ; User input for quantity
+    	total dw ?     
+    	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
+    	invalidQ 	db 10,13,"            Invalid input. Please enter a number between 1 and 9.$"
+    	resultMsg1 	db 10,13,"                       Total price  = RM $                "
+	sstMsg 		db 10,13,"                       SST          = RM $                "
+	grandTotalMsg 	db 10,13,"                       Grand total  = RM $                "
+	lastline	DB 10,13,"                      ___________________________________$"
+	standardTAP	DB 10,13,"                      ___________________________________"
+			DB 10,13,"                       Ticket Type  > Standard"
+			DB 10,13,"                       Ticket Price > RM 30 $"
+	VIPTAP		DB 10,13,"                      ___________________________________"
+			DB 10,13,"                       Ticket Type  > VIP"
+			DB 10,13,"                       Ticket Price > RM 65 $"
+	coupleTAP	DB 10,13,"                      ___________________________________"
+			DB 10,13,"                       Ticket Type  > Couple"
+			DB 10,13,"                       Ticket Price > RM 50 $"
+	confirm      	DB 10,13,"                     Confirm add to cart (Y-Yes,N-No) >  $"
+	added	     	DB 10,13
+			DB 10,13,"                         +Successfully Added to Cart +$"
+	cancelled    	DB 10,13
+			DB 10,13,"                          + Successfully Cancelled +$"
+	continue	DB 10,13
+			DB 10,13,"                     Continue Purchase ? (Y-Yes, N-No) > $"
+    	newline db 10, 13, "$"
+    	sst_quotient dw ?
+    	sst_remainder dw ?
+    	grand_total dw ?                       
+      ticket_type db 0     
+ticket_quantity db 0  
+no_ticket db "                     + No Ticket Have Been Purchase Yet +$"
+
+                                         
+
+.code
+main proc
+    	mov ax,@data
+    	mov ds,ax
+    	
+logo: 
+	mov ah,09h
+	lea dx,music_community
+	int 21h
+	lea dx,press
+	int 21h
+	
+	mov ah,01h
+	int 21h
+	call _start     
+
+_start:
+    	mov ah, 09h            ; Display the menu
+    	lea dx, menu
+    	int 21h
+
+promtChoice:  
+	mov ah, 09h            ; Display promt message
+    	lea dx, select
+    	int 21h
+
+    	mov ah, 01h            ; Read a single character from the user
+    	int 21h
+    	sub al, '0'            ; Convert ASCII to numeric
+
+    	cmp al, 1
+    	je event_details
+    	cmp al, 2
+    	je purchase
+	cmp al,3
+	je cart1
+    	cmp al, 4
+    	je jmpexit
+
+    ; Invalid choice
+    	mov ah, 09h
+    	lea dx, invalidMsg
+    	int 21h
+    	jmp promtChoice
+
+cart1:
+	call cart
+
+event_details:
+    	mov ah,09h
+	lea dx,Event_logo
+	int 21h
+    	lea dx,eventTitle
+    	int 21h
+    	mov ah, 01h            ; Read a single character from the user
+    	int 21h
+    	cmp al, 'B'
+    	jmp _start
+
+jumpback:
+    	jmp _start
+
+purchase:
+    	mov ah,09h
+	lea dx, ticket
+	int 21h
+    	lea dx,purchase_str
+    	int 21h
+
+retry:
+	lea dx,select_tic
+    	int 21h
+    	
+    	mov ah, 01h            ; Read a single character from the user
+    	int 21h
+    	
+	; Convert the input character to uppercase (if it's a lowercase letter)
+    	cmp al, 'a'
+    	jl not_lowercase
+    	cmp al, 'z'
+    	jg not_lowercase
+    	sub al, 32             ; Convert lowercase to uppercase
+    
+not_lowercase:
+	cmp al, 'S'            ; Check for 'S' (Standard)
+    	je order_standard
+	cmp al, 'V'            ; Check for 'V' (VIP)
+    	je order_vip
+	cmp al, 'B'            ; Check for 'B' (Exit)
+    	je jumpback
+	cmp al, 'C'            ; Check for 'C' (Couple)
+    	je order_coople
+
+    ; Invalid choice
+    	mov ah, 09h
+    	lea dx, invalidMsg
+    	int 21h
+    	jmp retry
+
+	
+order_coople:
+	call order_couple
+
+jmpexit: 
+	jmp exit_program
+
+order_standard:
+      mov byte ptr [ticket_type], 'S'  ; Store 'S' for Standard ticket
+    	mov ah, 09h             ; Print input message
+    	lea dx, inputMsg
+    	int 21h
+
+    	; Input quantity
+    	mov ah, 01h
+    	int 21h
+    	sub al, '0'             ; Convert ASCII to numeric value
+    	cmp al, 1               ; Check if quantity is at least 1
+    	jl iv
+    	cmp al, 9               ; Check if quantity is at most 9
+    	jg iv
+	   
+  ; Store the converted quantity
+    mov [ticket_quantity], al ; Store the selected quantity as a number
+
+
+    	; Calculate total price
+    	mov bl, al              ; Quantity in BL
+    	mov ax, standard           ; Price in AX
+    	mul bx                  ; AX = price * quantity
+    	mov total, ax
+
+	; Display results
+    	mov ah, 09h             ; Print result messages
+	lea dx, standardTAP
+	int 21h
+    	lea dx, resultMsg1
+    	int 21h
+
+    	mov ax, total           ; Display Total
+    	call print_decimal
+	
+	;mov ah, 09h
+	;lea dx,resultMsg1
+	;int 21h
+    	jmp calculateSST
+
+order_vip:
+	 mov byte ptr [ticket_type], 'V'  ; Store 'V' for VIP ticket
+    	mov ah, 09h             ; Print input message
+    	lea dx, inputMsg
+    	int 21h
+
+    	; Input quantity
+    	mov ah, 01h
+    	int 21h
+    	sub al, '0'             ; Convert ASCII to numeric value
+    	cmp al, 1               ; Check if quantity is at least 1
+    	jl invalidQuantity
+    	cmp al, 9               ; Check if quantity is at most 9
+    	jg invalidQuantity
+
+  ; Store the converted quantity
+    mov [ticket_quantity], al ; Store the selected quantity as a number
+
+    	; Calculate total price
+    	mov bl, al              ; Quantity in BL
+    	mov ax, vip           ; Price in AX
+    	mul bx                  ; AX = price * quantity
+    	mov total, ax
+
+	; Display results
+    	mov ah, 09h             ; Print result messages
+    	lea dx, VIPTAP
+	int 21h
+	lea dx, resultMsg1
+    	int 21h
+	
+    	mov ax, total           ; Display Total
+    	call print_decimal
+    	jmp calculateSST
+
+iv:
+ jmp invalidQuantity
+
+
+order_couple:
+        mov byte ptr [ticket_type], 'C'  ; Store 'C' for Couple ticket
+    	mov ah, 09h             ; Print input message
+    	lea dx, inputMsg
+    	int 21h
+
+    	; Input quantity
+    	mov ah, 01h
+    	int 21h
+    	sub al, '0'             ; Convert ASCII to numeric value
+    	cmp al, 1               ; Check if quantity is at least 1
+    	jl invalidQuantity
+    	cmp al, 9               ; Check if quantity is at most 9
+    	jg invalidQuantity
+        
+  ; Store the converted quantity
+    mov [ticket_quantity], al ; Store the selected quantity as a number
+
+
+
+    	; Calculate total price
+    	mov bl, al              ; Quantity in BL
+    	mov ax, couple           ; Price in AX
+    	mul bx                  ; AX = price * quantity
+    	mov total, ax
+
+	; Display results
+   	 mov ah, 09h             ; Print result messages
+    	lea dx, coupleTAP
+	int 21h 
+	lea dx, resultMsg1
+    	int 21h
+
+    	mov ax, total           ; Display Total
+    	call print_decimal
+    	jmp calculateSST
+
+invalidQuantity:
+    mov ah, 09h             ; Print invalid message
+    lea dx, invalidQ
+    int 21h 
+    jmp purchase 
+
+calculateSST:
+	 mov cx, 5         ; 5% SST rate
+    mul cx
+    mov bx,100
+    div bx
+
+    ; Store SST quotient and remainder
+    mov [sst_quotient], ax
+    mov [sst_remainder], dx
+
+   ; Display SST
+	mov ah, 09h
+	lea dx, sstMsg
+	int 21h
+	
+	mov ax, [sst_quotient]
+	mov ah, 0    ; Clear AH to ensure it's zero
+	call print_decimal
+	mov dl, '.'
+	mov ah, 02h
+	int 21h
+
+	mov ax,0
+	mov ax, [sst_remainder]
+	call print_decimal
+
+
+; Calculate grand total
+	mov ax, [total]
+	mov bx, [sst_quotient]
+	add ax, bx
+	mov word ptr [grand_total], ax
+
+
+    ; Display grand total
+    	mov ah, 09h
+    	lea dx, grandTotalMsg
+    	int 21h
+
+    	mov ax, [grand_total]
+    	call print_decimal
+    	mov dl, '.'
+    	mov ah, 02h
+    	int 21h
+
+	mov ax,0
+	mov ax, [sst_remainder]
+	call print_decimal
+	mov ah,09h
+	lea dx, lastline
+	int 21h
+	jmp confirmation
+
+confirmation:
+	mov ah,09h
+	lea dx, confirm
+	int 21h
+	mov ah, 01h
+	int 21h
+	cmp al, 'a'
+    	jl YesNo
+    	cmp al, 'z'
+    	jg YesNo
+    	sub al, 32  
+    
+YesNo:
+	cmp al, "Y"
+	je successadd
+	cmp al, "N"
+	je cancelledCart
+	
+	; Invalid choice
+    	mov ah, 09h
+    	lea dx, invalidMsg
+    	int 21h
+    	jmp confirmation
+
+successadd:
+	mov ah,09h
+	lea dx,added
+	int 21h
+	jmp continueOrder
+
+cancelledCart:
+    ; Check if any tickets have been purchased
+    mov al, [ticket_quantity]
+    cmp al, 0
+    je no_record
+
+    ; Clear the corresponding array entries
+    mov byte ptr [ticket_type], 0   ; Clear ticket type
+    mov byte ptr [ticket_quantity], 0   ; Clear ticket quantity
+
+    mov ah, 09h
+    lea dx, cancelled
+    int 21h
+    jmp purchase
+
+purchase1:
+	call purchase
+
+continueOrder:
+	mov ah,09h
+	lea dx, continue
+	int 21h
+	mov ah, 01h
+	int 21h
+	cmp al, 'a'
+    	jl conOrder
+    	cmp al, 'z'
+    	jg conOrder
+    	sub al, 32 
+     
+conOrder:
+	cmp al, "Y"
+	je purchase1
+	cmp al, "N"
+	je cart
+	
+	; Invalid choice
+    	mov ah, 09h
+    	lea dx, invalidMsg
+    	int 21h
+    	jmp continueOrder
+
+print_decimal:
+    push ax
+    push bx
+    push cx
+    push dx
+
+    mov bx, 10     ; BX = 10 (divisor)
+
+    mov cx, 0      ; Initialize digit counter
+
+    ; Loop to extract digits in reverse order
+
+    extract_digit:
+        xor dx, dx     ; Clear DX for division
+        div bx         ; AX / 10 -> AX = quotient, DX = remainder
+        push dx        ; Push the remainder onto the stack
+        inc cx         ; Increment digit counter
+        test ax, ax    ; Check if quotient is zero
+        jnz extract_digit
+
+    ; Loop to print digits from the stack
+    print_digit:
+        pop dx         ; Pop a digit from the stack
+        add dl, '0'    ; Convert digit to ASCII
+        mov ah, 02h    ; Print character function
+        int 21h
+        loop print_digit
+
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    ret
+
+no_record:
+    ; Display a message if no tickets have been purchased
+    mov ah, 09h
+    lea dx, no_ticket
+    int 21h
+    jmp purchase
+
+cart:
+    mov ah, 09h
+    lea dx, cart_logo
+    int 21h
+
+  ; Display ticket quantity or "No tickets purchased yet" message
+    mov al, [ticket_quantity]   ; Load ticket quantity
+    cmp al, 0
+    je no_record               ; Jump if no tickets have been purchased
+
+    ; Initialize loop counter
+    mov cx, 10
+    
+display_tickets:
+    ; Display ticket type
+    mov ah, 02h           ; Print character function
+    mov dl, [ticket_type] ; Load ticket type from memory
+    int 21h
+
+    ; Display ticket quantity
+    mov ah, 02h           ; Print character function
+    mov dl, [ticket_quantity] ; Load ticket quantity from memory
+    add dl, '0'           ; Convert numeric value to ASCII character
+    int 21h
+
+    ; Print a newline for the next ticket
+    mov dl, 10
+    mov ah, 02h
+    int 21h
+
+    ; Check if the user wants to continue shopping
+    mov ah, 09h
+    lea dx, continue
+    int 21h
+    mov ah, 01h
+    int 21h
+    cmp al, 'a'
+    jl continueShopping
+    cmp al, 'z'
+    jg continueShopping
+    sub al, 32
+
+continueShopping:
+    cmp al, "Y"
+    call purchase   ; If the user wants to continue shopping, exit the cart
+    cmp al, "N"
+    call _start      ; If the user wants to go back to the main menu, return to the main menu
+
+    ; Invalid choice
+    mov ah, 09h
+    lea dx, invalidMsg
+    int 21h
+    jmp display_tickets
+
+
+
+exit_cart:
+    ret
+
+exit_program:
+    	mov ah, 4Ch        ; Set the function code for program termination
+    	int 21h   
+
+    	mov ah, 4Ch        
+    	int 21h	
+
+main endp
+    	end main
