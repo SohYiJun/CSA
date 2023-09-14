@@ -125,9 +125,9 @@
 			DB 10,13,"                       Ticket Price > RM 50 $"
 	confirm      	DB 10,13,"                     Confirm add to cart (Y-Yes,N-No) >  $"
 	added	     	DB 10,13
-			DB 10,13,"                         +Successfully Added to Cart +$"
+			DB 10,13,"                         + Successfully Added to Cart +$"
 	cancelled    	DB 10,13
-			DB 10,13,"                          + Successfully Cancelled +$"
+			DB 10,13,"                          - Successfully Cancelled -$"
 	continue	DB 10,13
 			DB 10,13,"                     Continue Purchase ? (Y-Yes, N-No) > $"
     	newline db 10, 13, "$"
@@ -136,7 +136,7 @@
     	grand_total dw ?                       
       ticket_type db 0     
 ticket_quantity db 0  
-no_ticket db "                     + No Ticket Have Been Purchase Yet +$"
+no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
 
                                          
 
@@ -157,6 +157,9 @@ logo:
 	call _start     
 
 _start:
+jmp main_menu
+
+main_menu:
     	mov ah, 09h            ; Display the menu
     	lea dx, menu
     	int 21h
@@ -564,6 +567,24 @@ display_tickets:
     mov ah, 02h
     int 21h
 
+display_grand_total:
+    ; Display the grand total
+    mov ah, 09h
+    lea dx, grandTotalMsg
+    int 21h
+
+    mov ax, [grand_total]
+    call print_decimal
+    mov dl, '.'
+    mov ah, 02h
+    int 21h
+
+        mov ax,0
+	mov ax, [sst_remainder]
+	call print_decimal
+	
+	
+
     ; Check if the user wants to continue shopping
     mov ah, 09h
     lea dx, continue
@@ -578,9 +599,9 @@ display_tickets:
 
 continueShopping:
     cmp al, "Y"
-    call purchase   ; If the user wants to continue shopping, exit the cart
+    je Cpurchase   ; If the user wants to continue shopping, exit the cart
     cmp al, "N"
-    call _start      ; If the user wants to go back to the main menu, return to the main menu
+    call _start      ; if use call will execute the _start code so i seprate the main_menu
 
     ; Invalid choice
     mov ah, 09h
@@ -588,10 +609,11 @@ continueShopping:
     int 21h
     jmp display_tickets
 
-
-
 exit_cart:
     ret
+
+Cpurchase:
+call purchase
 
 exit_program:
     	mov ah, 4Ch        ; Set the function code for program termination
