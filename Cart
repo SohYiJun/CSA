@@ -132,14 +132,14 @@
 			DB 10,13,"                     Continue Purchase ? (Y-Yes, N-No) > $"
     	newline db 10, 13, "$"
     	sst_quotient dw ?
-    	sst_remainder dw ?
-    	grand_total dw ?                       
-      ticket_type db 0     
-ticket_quantity db 0  
-no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
+    	sst_remainder_array dw 10 dup (?)
+    	grand_total_array dw 10 dup (?)                       
+      ticket_type_array db 10 dup (0)     
+ticket_quantity_array db 10 dup (0)  
+;no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
+ purchase_index db 0  ; Initialize purchase_index to 0
 
                                          
-
 .code
 main proc
     	mov ax,@data
@@ -249,8 +249,10 @@ order_coople:
 jmpexit: 
 	jmp exit_program
 
+
 order_standard:
-      mov byte ptr [ticket_type], 'S'  ; Store 'S' for Standard ticket
+      mov si, 0
+      mov byte ptr ticket_type_array[si], 'S'  ; Store 'S' for Standard ticket
     	mov ah, 09h             ; Print input message
     	lea dx, inputMsg
     	int 21h
@@ -265,7 +267,7 @@ order_standard:
     	jg iv
 	   
   ; Store the converted quantity
-    mov [ticket_quantity], al ; Store the selected quantity as a number
+    mov ticket_quantity_array[si], al ; Store the selected quantity as a number
 
 
     	; Calculate total price
@@ -283,14 +285,14 @@ order_standard:
 
     	mov ax, total           ; Display Total
     	call print_decimal
-	
-	;mov ah, 09h
-	;lea dx,resultMsg1
-	;int 21h
     	jmp calculateSST
 
+            inc si
+	  inc [purchase_index]
 order_vip:
-	 mov byte ptr [ticket_type], 'V'  ; Store 'V' for VIP ticket
+
+        mov si,0 
+	mov byte ptr ticket_type_array[si], 'V'  ; Store 'V' for VIP ticket
     	mov ah, 09h             ; Print input message
     	lea dx, inputMsg
     	int 21h
@@ -305,7 +307,7 @@ order_vip:
     	jg invalidQuantity
 
   ; Store the converted quantity
-    mov [ticket_quantity], al ; Store the selected quantity as a number
+    mov ticket_quantity_array[si], al ; Store the selected quantity as a number
 
     	; Calculate total price
     	mov bl, al              ; Quantity in BL
@@ -324,12 +326,15 @@ order_vip:
     	call print_decimal
     	jmp calculateSST
 
+           inc si
+	  inc [purchase_index]
 iv:
  jmp invalidQuantity
 
 
 order_couple:
-        mov byte ptr [ticket_type], 'C'  ; Store 'C' for Couple ticket
+	mov si,0
+        mov byte ptr ticket_type_array[si], 'C'  ; Store 'C' for Couple ticket
     	mov ah, 09h             ; Print input message
     	lea dx, inputMsg
     	int 21h
@@ -344,9 +349,7 @@ order_couple:
     	jg invalidQuantity
         
   ; Store the converted quantity
-    mov [ticket_quantity], al ; Store the selected quantity as a number
-
-
+    mov ticket_quantity_array[si], al ; Store the selected quantity as a number
 
     	; Calculate total price
     	mov bl, al              ; Quantity in BL
@@ -365,6 +368,8 @@ order_couple:
     	call print_decimal
     	jmp calculateSST
 
+	inc si
+	  inc [purchase_index]
 invalidQuantity:
     mov ah, 09h             ; Print invalid message
     lea dx, invalidQ
@@ -379,7 +384,7 @@ calculateSST:
 
     ; Store SST quotient and remainder
     mov [sst_quotient], ax
-    mov [sst_remainder], dx
+    mov sst_remainder_array[si], dx
 
    ; Display SST
 	mov ah, 09h
@@ -394,7 +399,7 @@ calculateSST:
 	int 21h
 
 	mov ax,0
-	mov ax, [sst_remainder]
+	mov ax, sst_remainder_array[si]
 	call print_decimal
 
 
@@ -402,7 +407,7 @@ calculateSST:
 	mov ax, [total]
 	mov bx, [sst_quotient]
 	add ax, bx
-	mov word ptr [grand_total], ax
+	mov grand_total_array[si], ax
 
 
     ; Display grand total
@@ -410,14 +415,14 @@ calculateSST:
     	lea dx, grandTotalMsg
     	int 21h
 
-    	mov ax, [grand_total]
+    	mov ax, grand_total_array[si]
     	call print_decimal
     	mov dl, '.'
     	mov ah, 02h
     	int 21h
 
 	mov ax,0
-	mov ax, [sst_remainder]
+	mov ax, sst_remainder_array[si]
 	call print_decimal
 	mov ah,09h
 	lea dx, lastline
@@ -452,17 +457,13 @@ successadd:
 	mov ah,09h
 	lea dx,added
 	int 21h
+	inc si
 	jmp continueOrder
 
 cancelledCart:
-    ; Check if any tickets have been purchased
-    mov al, [ticket_quantity]
-    cmp al, 0
-    je no_record
-
     ; Clear the corresponding array entries
-    mov byte ptr [ticket_type], 0   ; Clear ticket type
-    mov byte ptr [ticket_quantity], 0   ; Clear ticket quantity
+    mov byte ptr ticket_type_array[si], 0   ; Clear ticket type
+    mov byte ptr ticket_quantity_array[si], 0   ; Clear ticket quantity
 
     mov ah, 09h
     lea dx, cancelled
@@ -486,6 +487,7 @@ continueOrder:
      
 conOrder:
 	cmp al, "Y"
+          inc si
 	je purchase1
 	cmp al, "N"
 	je cart
@@ -530,97 +532,87 @@ print_decimal:
     pop ax
     ret
 
-no_record:
-    ; Display a message if no tickets have been purchased
-    mov ah, 09h
-    lea dx, no_ticket
-    int 21h
-    jmp purchase
 
 cart:
     mov ah, 09h
     lea dx, cart_logo
     int 21h
 
-  ; Display ticket quantity or "No tickets purchased yet" message
-    mov al, [ticket_quantity]   ; Load ticket quantity
-    cmp al, 0
-    je no_record               ; Jump if no tickets have been purchased
+    mov si, 0
+   ; mov [purchase_index], 0  ; Initialize purchase_index to 0  
 
-    ; Initialize loop counter
-    mov cx, 10
-    
+;check_ticket:
+ ;   mov cl, [purchase_index]  ; Load purchase_index into CX
+  ;  cmp cl, 0                ; Compare with 0
+  ;  je skip_ticket            ; If purchase_index is 0, no tickets have been purchased
+
 display_tickets:
     ; Display ticket type
     mov ah, 02h           ; Print character function
-    mov dl, [ticket_type] ; Load ticket type from memory
+    mov dl, ticket_type_array[si] ; Load ticket type from memory
     int 21h
 
     ; Display ticket quantity
     mov ah, 02h           ; Print character function
-    mov dl, [ticket_quantity] ; Load ticket quantity from memory
+    mov dl, ticket_quantity_array[si] ; Load ticket quantity from memory
     add dl, '0'           ; Convert numeric value to ASCII character
     int 21h
-
-    ; Print a newline for the next ticket
-    mov dl, 10
-    mov ah, 02h
-    int 21h
-
+   
 display_grand_total:
     ; Display the grand total
     mov ah, 09h
     lea dx, grandTotalMsg
     int 21h
 
-    mov ax, [grand_total]
+    mov ax, grand_total_array[si]
     call print_decimal
     mov dl, '.'
     mov ah, 02h
     int 21h
 
-        mov ax,0
-	mov ax, [sst_remainder]
-	call print_decimal
-	
-	
+    mov ax, 0
+    mov ax, sst_remainder_array[si]
+    call print_decimal
 
+    ; Print a newline for the next ticket
+    mov dl, 10
+    mov ah, 02h
+    int 21h
+
+    ; Move to the next ticket
+    inc si
+    mov cx, word ptr [purchase_index]
+    cmp si,cx
+    jl display_tickets
+
+skip_ticket:
     ; Check if the user wants to continue shopping
-    mov ah, 09h
+        mov ah, 09h
     lea dx, continue
     int 21h
     mov ah, 01h
     int 21h
-    cmp al, 'a'
-    jl continueShopping
-    cmp al, 'z'
-    jg continueShopping
-    sub al, 32
-
-continueShopping:
-    cmp al, "Y"
-    je Cpurchase   ; If the user wants to continue shopping, exit the cart
-    cmp al, "N"
-    call _start      ; if use call will execute the _start code so i seprate the main_menu
+    cmp al, 'y'
+   je Cpurchase 
+   cmp al, 'N'
+   call _start
 
     ; Invalid choice
     mov ah, 09h
     lea dx, invalidMsg
     int 21h
-    jmp display_tickets
-
-exit_cart:
-    ret
+    jmp skip_ticket
 
 Cpurchase:
-call purchase
+ inc [purchase_index]    ; Increment purchase_index
+    call purchase
+
+exit_cart:
+ret
 
 exit_program:
-    	mov ah, 4Ch        ; Set the function code for program termination
-    	int 21h   
-
-    	mov ah, 4Ch        
-    	int 21h	
+    mov ah, 4Ch        ; Set the function code for program termination
+    int 21h   
 
 main endp
-    	end main
+end main
