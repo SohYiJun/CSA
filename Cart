@@ -255,7 +255,7 @@ jmpexit:
 
 
 order_standard: 
-inc [purchase_index]
+;inc [purchase_index]
       ;mov si, 0
       mov byte ptr ticket_type_array[si], 'S'  ; Store 'S' for Standard ticket
     	mov ah, 09h             ; Print input message
@@ -295,7 +295,7 @@ inc [purchase_index]
             inc si
 	 
 order_vip:
-	  inc [purchase_index]
+	 ; inc [purchase_index]
         ;mov si,0 
 	mov byte ptr ticket_type_array[si], 'V'  ; Store 'V' for VIP ticket
     	mov ah, 09h             ; Print input message
@@ -338,7 +338,7 @@ iv:
 
 
 order_couple: 
- inc [purchase_index]
+; inc [purchase_index]
 	;mov si,0
         mov byte ptr [ticket_type_array+si], 'C'  ; Store 'C' for Couple ticket
     	mov ah, 09h             ; Print input message
