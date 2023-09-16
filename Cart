@@ -107,7 +107,7 @@
 	vip dw 65
 	
     	quantity db ?           ; User input for quantity
-    	total dw ?     
+    	;total dw ?     
     	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
     	invalidQ 	db 10,13,"            Invalid input. Please enter a number between 1 and 9.$"
     	resultMsg1 	db 10,13,"                       Total price  = RM $                "
@@ -130,16 +130,20 @@
 			DB 10,13,"                          - Successfully Cancelled -$"
 	continue	DB 10,13
 			DB 10,13,"                     Continue Purchase ? (Y-Yes, N-No) > $"
-    	newline db 10, 13, "$"
-    	sst_quotient dw ?
+    	redirect 	DB 10,13
+			DB 10,13,"                     Redirect To Cart ? (Y-Yes, N-No) > $"
+newline db 10, 13, "$"
+;no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
+
+total_array dw 10 dup (?)        	
+sst_quotient_array dw 10 dup (?)
     	sst_remainder_array dw 10 dup (?)
     	grand_total_array dw 10 dup (?)                       
       ticket_type_array db 10 dup (0)     
 ticket_quantity_array db 10 dup (0)  
-;no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
  purchase_index dw 0  ; Initialize purchase_index to 0
-redirect 	DB 10,13
-			DB 10,13,"                     Redirect To Cart ? (Y-Yes, N-No) > $"
+
+;temp_gt dw 0
                                          
 .code
 main proc
@@ -209,9 +213,7 @@ jumpback:
 
 purchase:
 	inc [purchase_index]
-	;mov sst_remainder_array[si],0
-    	;mov grand_total_array[si],0
-	
+
 
     	mov ah,09h
 	lea dx, ticket
@@ -279,7 +281,7 @@ order_standard:
     	mov bl, al              ; Quantity in BL
     	mov ax, standard           ; Price in AX
     	mul bx                  ; AX = price * quantity
-    	mov total, ax
+    	mov total_array[si], ax
 
 	; Display results
     	mov ah, 09h             ; Print result messages
@@ -288,11 +290,11 @@ order_standard:
     	lea dx, resultMsg1
     	int 21h
 
-    	mov ax, total           ; Display Total
+    	mov ax, total_array[si]           ; Display Total
     	call print_decimal
     	jmp calculateSST
 
-            inc si
+           
 	 
 order_vip:
 	mov byte ptr ticket_type_array[si], 'V'  ; Store 'V' for VIP ticket
@@ -316,7 +318,7 @@ order_vip:
     	mov bl, al              ; Quantity in BL
     	mov ax, vip           ; Price in AX
     	mul bx                  ; AX = price * quantity
-    	mov total, ax
+    	mov total_array[si], ax
 
 	; Display results
     	mov ah, 09h             ; Print result messages
@@ -325,11 +327,11 @@ order_vip:
 	lea dx, resultMsg1
     	int 21h
 	
-    	mov ax, total           ; Display Total
+    	mov ax, total_array[si]          ; Display Total
     	call print_decimal
     	jmp calculateSST
 
-           inc si
+           
 
 iv:
  jmp invalidQuantity
@@ -357,7 +359,7 @@ order_couple:
     	mov bl, al              ; Quantity in BL
     	mov ax, couple           ; Price in AX
     	mul bx                  ; AX = price * quantity
-    	mov total, ax
+    	mov total_array[si], ax
 
 	; Display results
    	 mov ah, 09h             ; Print result messages
@@ -366,34 +368,33 @@ order_couple:
 	lea dx, resultMsg1
     	int 21h
 
-    	mov ax, total           ; Display Total
+    	mov ax, total_array[si]           ; Display Total
     	call print_decimal
     	jmp calculateSST
 
-	inc si
-	
 invalidQuantity:
     mov ah, 09h             ; Print invalid message
     lea dx, invalidQ
     int 21h 
     jmp purchase 
 
-calculateSST:
-	 mov cx, 5         ; 5% SST rate
-    mul cx
-    mov bx,100
-    div bx
+calculateSST: 
+	mov cx, 5         ; 5% SST rate
+	mul cx
+	mov bx,100
+	div bx
 
     ; Store SST quotient and remainder
-    mov [sst_quotient], ax
+    mov sst_quotient_array[si], ax
     mov sst_remainder_array[si], dx
+
 
    ; Display SST
 	mov ah, 09h
 	lea dx, sstMsg
 	int 21h
 	
-	mov ax, [sst_quotient]
+	mov ax, sst_quotient_array[si]
 	mov ah, 0    ; Clear AH to ensure it's zero
 	call print_decimal
 	mov dl, '.'
@@ -403,13 +404,14 @@ calculateSST:
 	mov ax,0
 	mov ax, sst_remainder_array[si]
 	call print_decimal
-
+        
 
 ; Calculate grand total
-	mov ax, [total]
-	mov bx, [sst_quotient]
+	mov ax, total_array[si]
+	mov bx, sst_quotient_array[si]
 	add ax, bx
-	mov grand_total_array[si], ax
+         mov  grand_total_array[si],ax
+
 
 
     ; Display grand total
@@ -419,6 +421,8 @@ calculateSST:
 
     	mov ax, grand_total_array[si]
     	call print_decimal
+	
+
     	mov dl, '.'
     	mov ah, 02h
     	int 21h
@@ -429,6 +433,7 @@ calculateSST:
 	mov ah,09h
 	lea dx, lastline
 	int 21h
+ 
 	jmp confirmation
 
 confirmation:
@@ -459,7 +464,8 @@ successadd:
 	mov ah,09h
 	lea dx,added
 	int 21h
-	;inc si
+	inc si
+	inc di
 	jmp redirect1
 
 cancelledCart:
@@ -468,9 +474,7 @@ cancelledCart:
     mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
     mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
     mov word ptr [grand_total_array+si], 0     ; Clear grand total
-;dec si
-;mov bl,2
-;sub byte ptr [purchase_index],bl
+
 dec  [purchase_index]
 
     mov ah, 09h
@@ -545,7 +549,7 @@ cart:
     lea dx, cart_logo
     int 21h
 
-    mov si, 0
+  mov si, 0
   mov cx, [purchase_index]
 
 
@@ -553,8 +557,7 @@ cart:
     mov al, byte ptr grand_total_array[si] ; Load ticket quantity into AL
     cmp al, 0                          ; Compare with 0
     je skip_ticket                     ; If it's zero, skip this ticket
-
-;jmp skip_ticket
+    
 
 display_tickets:
     ; Display ticket type
@@ -568,13 +571,14 @@ display_tickets:
     add dl, '0'           ; Convert numeric value to ASCII character
     int 21h
    
-display_grand_total:
     ; Display the grand total
     mov ah, 09h
     lea dx, grandTotalMsg
     int 21h
 
-    mov ax, grand_total_array[si]
+  mov ax,0
+  mov ax, grand_total_array[si]
+
     call print_decimal
     mov dl, '.'
     mov ah, 02h
@@ -592,6 +596,7 @@ display_grand_total:
     ; Move to the next ticket
     inc si
     cmp si,cx
+
     jl display_tickets
 
 skip_ticket:
@@ -615,8 +620,8 @@ skip_ticket:
 Cpurchase:
     call purchase
 
-exit_cart:
-ret
+;exit_cart:
+;ret
 
 exit_program:
     mov ah, 4Ch        ; Set the function code for program termination
