@@ -487,7 +487,6 @@ continueOrder:
      
 conOrder:
 	cmp al, "Y"
-          inc si
 	je purchase1
 	cmp al, "N"
 	je cart
