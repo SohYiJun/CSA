@@ -138,7 +138,8 @@
 ticket_quantity_array db 10 dup (0)  
 ;no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
  purchase_index dw 0  ; Initialize purchase_index to 0
-
+redirect 	DB 10,13
+			DB 10,13,"                     Redirect To Cart ? (Y-Yes, N-No) > $"
                                          
 .code
 main proc
@@ -203,12 +204,13 @@ event_details:
     	jmp _start
 
 jumpback:
+        dec [purchase_index]
     	jmp _start
 
 purchase:
 	inc [purchase_index]
-	mov sst_remainder_array[si],0
-    	mov grand_total_array[si],0
+	;mov sst_remainder_array[si],0
+    	;mov grand_total_array[si],0
 	
 
     	mov ah,09h
@@ -457,45 +459,51 @@ successadd:
 	mov ah,09h
 	lea dx,added
 	int 21h
-	inc si
-	jmp continueOrder
+	;inc si
+	jmp redirect1
 
 cancelledCart:
     ; Clear the corresponding array entries
-    mov byte ptr ticket_type_array[si], 0   ; Clear ticket type
-    mov byte ptr ticket_quantity_array[si], 0   ; Clear ticket quantity
+   mov byte ptr [ticket_type_array+si], 0   ; Clear ticket type
+    mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
+    mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
+    mov word ptr [grand_total_array+si], 0     ; Clear grand total
+;dec si
+;mov bl,2
+;sub byte ptr [purchase_index],bl
+dec  [purchase_index]
 
     mov ah, 09h
     lea dx, cancelled
     int 21h
-    jmp purchase
+    call _start
 
 purchase1:
 	call purchase
 
-continueOrder:
+redirect1:
 	mov ah,09h
-	lea dx, continue
+	lea dx, redirect
 	int 21h
 	mov ah, 01h
 	int 21h
 	cmp al, 'a'
-    	jl conOrder
+    	jl conRedirect
     	cmp al, 'z'
-    	jg conOrder
+    	jg conRedirect
     	sub al, 32 
      
-conOrder:
+conRedirect:
 	cmp al, "Y"
-	je purchase1
-	cmp al, "N"
 	je cart
+	cmp al, "N"
+	call _start 
 	
 	; Invalid choice
     	mov ah, 09h
     	lea dx, invalidMsg
     	int 21h
-    	jmp continueOrder
+    	jmp redirect1
 
 print_decimal:
     push ax
@@ -540,16 +548,13 @@ cart:
     mov si, 0
   mov cx, [purchase_index]
 
-check_ticket:
-    mov bl, [ticket_type_array+si]  ; Load the ticket type into CL
-    cmp bl, 'S'                       ; Compare with 'S'
-    je display_tickets                 ; If it's 'S', it's a valid ticket type
-    cmp bl, 'V'                       ; Compare with 'V'
-    je display_tickets                  ; If it's 'V', it's a valid ticket type
-    cmp bl, 'C'                       ; Compare with 'C'
-    je display_tickets                  ; If it's 'C', it's a valid ticket type
 
-jmp skip_ticket
+  ;Check if quantity is zero
+    mov al, byte ptr grand_total_array[si] ; Load ticket quantity into AL
+    cmp al, 0                          ; Compare with 0
+    je skip_ticket                     ; If it's zero, skip this ticket
+
+;jmp skip_ticket
 
 display_tickets:
     ; Display ticket type
