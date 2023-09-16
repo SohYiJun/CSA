@@ -137,7 +137,7 @@
       ticket_type_array db 10 dup (0)     
 ticket_quantity_array db 10 dup (0)  
 ;no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
- purchase_index db 0  ; Initialize purchase_index to 0
+ purchase_index dw 0  ; Initialize purchase_index to 0
 
                                          
 .code
@@ -206,6 +206,9 @@ jumpback:
     	jmp _start
 
 purchase:
+	mov sst_remainder_array[si],0
+    	mov grand_total_array[si],0
+
     	mov ah,09h
 	lea dx, ticket
 	int 21h
@@ -250,8 +253,9 @@ jmpexit:
 	jmp exit_program
 
 
-order_standard:
-      mov si, 0
+order_standard: 
+inc [purchase_index]
+      ;mov si, 0
       mov byte ptr ticket_type_array[si], 'S'  ; Store 'S' for Standard ticket
     	mov ah, 09h             ; Print input message
     	lea dx, inputMsg
@@ -288,10 +292,10 @@ order_standard:
     	jmp calculateSST
 
             inc si
-	  inc [purchase_index]
+	 
 order_vip:
-
-        mov si,0 
+	  inc [purchase_index]
+        ;mov si,0 
 	mov byte ptr ticket_type_array[si], 'V'  ; Store 'V' for VIP ticket
     	mov ah, 09h             ; Print input message
     	lea dx, inputMsg
@@ -327,14 +331,15 @@ order_vip:
     	jmp calculateSST
 
            inc si
-	  inc [purchase_index]
+
 iv:
  jmp invalidQuantity
 
 
-order_couple:
-	mov si,0
-        mov byte ptr ticket_type_array[si], 'C'  ; Store 'C' for Couple ticket
+order_couple: 
+ inc [purchase_index]
+	;mov si,0
+        mov byte ptr [ticket_type_array+si], 'C'  ; Store 'C' for Couple ticket
     	mov ah, 09h             ; Print input message
     	lea dx, inputMsg
     	int 21h
@@ -369,7 +374,7 @@ order_couple:
     	jmp calculateSST
 
 	inc si
-	  inc [purchase_index]
+	
 invalidQuantity:
     mov ah, 09h             ; Print invalid message
     lea dx, invalidQ
@@ -539,7 +544,7 @@ cart:
     int 21h
 
     mov si, 0
-   ; mov [purchase_index], 0  ; Initialize purchase_index to 0  
+  mov cx, [purchase_index]
 
 ;check_ticket:
  ;   mov cl, [purchase_index]  ; Load purchase_index into CX
@@ -581,7 +586,6 @@ display_grand_total:
 
     ; Move to the next ticket
     inc si
-    mov cx, word ptr [purchase_index]
     cmp si,cx
     jl display_tickets
 
