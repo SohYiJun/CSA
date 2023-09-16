@@ -206,6 +206,7 @@ jumpback:
     	jmp _start
 
 purchase:
+  inc [purchase_index]
 	mov sst_remainder_array[si],0
     	mov grand_total_array[si],0
 
@@ -608,7 +609,7 @@ skip_ticket:
     jmp skip_ticket
 
 Cpurchase:
- inc [purchase_index]    ; Increment purchase_index
+;inc [purchase_index]    ; Increment purchase_index
     call purchase
 
 exit_cart:
