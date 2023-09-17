@@ -133,7 +133,6 @@
     	redirect 	DB 10,13
 			DB 10,13,"                     Redirect To Cart ? (Y-Yes, N-No) > $"
 newline db 10, 13, "$"
-;no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
 
 	total_array dw 10 dup (?)        	
 	sst_quotient_array dw 10 dup (?)
@@ -213,7 +212,7 @@ jumpback:
 
 purchase:
 	inc [purchase_index]
-	;inc [purchase_index]
+	inc [purchase_index]
         
 
     	mov ah,09h
@@ -466,16 +465,10 @@ successadd:
 	int 21h
 	inc si
 	inc si
-         ;inc [purchase_index]
 	jmp redirect1
 
 cancelledCart:
-    ; Clear the corresponding array entries
-   ;mov byte ptr [ticket_type_array+si], 0   ; Clear ticket type
-    ;mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
-    ;mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
-    ;mov word ptr [grand_total_array+si], 0     ; Clear grand total
-
+dec  [purchase_index]
 dec  [purchase_index]
 
     mov ah, 09h
