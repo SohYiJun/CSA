@@ -134,12 +134,13 @@
 			DB 10,13,"                     Redirect To Cart ? (Y-Yes, N-No) > $"
 newline db 10, 13, "$"
 
-	total_array dw 10 dup (?)        	
-	sst_quotient_array dw 10 dup (?)
-    	sst_remainder_array dw 10 dup (?)
-    	grand_total_array dw 10 dup (?)                       
-        ticket_type_array db 10 dup (0)     
-	ticket_quantity_array db 10 dup (0)  
+	total_array dw 20 dup (?)        	
+	sst_quotient_array dw 20 dup (?)
+    	sst_remainder_array dw 20 dup (?)
+    	grand_total_array dw 20 dup (?)                       
+        ticket_type_array db 20 dup (0)     
+	ticket_quantity_array db 20 dup (0)  
+
  	purchase_index dw 0  ; Initialize purchase_index to 0
 
 
@@ -614,9 +615,6 @@ skip_ticket:
 
 Cpurchase:
     call purchase
-
-;exit_cart:
-;ret
 
 exit_program:
     mov ah, 4Ch        ; Set the function code for program termination
