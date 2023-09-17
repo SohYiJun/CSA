@@ -135,15 +135,15 @@
 newline db 10, 13, "$"
 ;no_ticket DB 10,13,"                   + No Ticket Have Been Purchase Yet +$"
 
-total_array dw 10 dup (?)        	
-sst_quotient_array dw 10 dup (?)
+	total_array dw 10 dup (?)        	
+	sst_quotient_array dw 10 dup (?)
     	sst_remainder_array dw 10 dup (?)
     	grand_total_array dw 10 dup (?)                       
-      ticket_type_array db 10 dup (0)     
-ticket_quantity_array db 10 dup (0)  
- purchase_index dw 0  ; Initialize purchase_index to 0
+        ticket_type_array db 10 dup (0)     
+	ticket_quantity_array db 10 dup (0)  
+ 	purchase_index dw 0  ; Initialize purchase_index to 0
 
-;temp_gt dw 0
+
                                          
 .code
 main proc
@@ -213,7 +213,8 @@ jumpback:
 
 purchase:
 	inc [purchase_index]
-
+	;inc [purchase_index]
+        
 
     	mov ah,09h
 	lea dx, ticket
@@ -331,7 +332,6 @@ order_vip:
     	call print_decimal
     	jmp calculateSST
 
-           
 
 iv:
  jmp invalidQuantity
@@ -465,15 +465,16 @@ successadd:
 	lea dx,added
 	int 21h
 	inc si
-	inc di
+	inc si
+         ;inc [purchase_index]
 	jmp redirect1
 
 cancelledCart:
     ; Clear the corresponding array entries
-   mov byte ptr [ticket_type_array+si], 0   ; Clear ticket type
-    mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
-    mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
-    mov word ptr [grand_total_array+si], 0     ; Clear grand total
+   ;mov byte ptr [ticket_type_array+si], 0   ; Clear ticket type
+    ;mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
+    ;mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
+    ;mov word ptr [grand_total_array+si], 0     ; Clear grand total
 
 dec  [purchase_index]
 
@@ -552,12 +553,10 @@ cart:
   mov si, 0
   mov cx, [purchase_index]
 
-
-  ;Check if quantity is zero
+ ;Check if quantity is zero
     mov al, byte ptr grand_total_array[si] ; Load ticket quantity into AL
     cmp al, 0                          ; Compare with 0
     je skip_ticket                     ; If it's zero, skip this ticket
-    
 
 display_tickets:
     ; Display ticket type
@@ -594,12 +593,15 @@ display_tickets:
     int 21h
 
     ; Move to the next ticket
+   
     inc si
-    cmp si,cx
+    inc si
+    cmp si,cx 
 
     jl display_tickets
 
 skip_ticket:
+
     ; Check if the user wants to continue shopping
     mov ah, 09h
     lea dx, continue
