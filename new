@@ -366,11 +366,19 @@ validateCPL:
 	jmp _start
 
 validateFail:
- 	MOV AH,09H
+	MOV AH,09H
 	LEA DX,NL
 	INT 21H
 	MOV BL, 12	
 	MOV CX, 47
+	MOV DX, 3
+	MOV AH, 09H
+	INT 10H
+ 	MOV AH,09H
+	LEA DX,NL
+	INT 21H
+	MOV BL, 10	
+	MOV CX, 24
 	MOV DX, 3
 	MOV AH, 09H
 	INT 10H
