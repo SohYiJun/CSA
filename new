@@ -204,8 +204,8 @@
 	loginPass db  26
                   db  ?
                   db  26 dup("$")
-	successlogin db 10,13,10,13,"                          Login successfully$"
-	faillogin    db 10,13 , "                                Fail to Login $"
+	successlogin db  "                            Login successfully$"
+	faillogin    db  "                                Fail to Login $"
 	NL db 10,13,"$"
 	lgconstr           db 10,13,10,13,"                      Press any key to proceed...$"
 
@@ -344,6 +344,16 @@ bridge_validateFail:
 	CALL validateFail
   
 validateCPL:
+	MOV AH,09H
+	LEA DX,NL
+	INT 21H
+	LEA DX,NL
+	INT 21H
+	MOV BL, 10	
+	MOV CX, 47
+	MOV DX, 3
+	MOV AH, 09H
+	INT 10H
 	 MOV AH,09H
    	LEA DX,successlogin
    	INT 21H	
@@ -359,8 +369,8 @@ validateFail:
  	MOV AH,09H
 	LEA DX,NL
 	INT 21H
-	MOV BL, 10	
-	MOV CX, 24
+	MOV BL, 12	
+	MOV CX, 47
 	MOV DX, 3
 	MOV AH, 09H
 	INT 10H
