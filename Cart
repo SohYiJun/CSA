@@ -469,6 +469,13 @@ successadd:
 	jmp redirect1
 
 cancelledCart:
+
+  ;Clear the corresponding array entries
+   mov byte ptr [ticket_type_array+si], 0   ; Clear ticket type
+    mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
+    mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
+    mov word ptr [grand_total_array+si], 0     ; Clear grand total
+
 dec  [purchase_index]
 dec  [purchase_index]
 
