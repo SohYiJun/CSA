@@ -350,7 +350,7 @@ validateCPL:
 	LEA DX,NL
 	INT 21H
 	MOV BL, 10	
-	MOV CX, 47
+	MOV CX, 46
 	MOV DX, 3
 	MOV AH, 09H
 	INT 10H
