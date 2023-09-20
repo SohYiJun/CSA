@@ -304,11 +304,11 @@ Register:
 	lea si,signupUserID
 
 check:
-	mov cx,3
-	cmp byte ptr [si], 0DH
+	add si,2
+	mov al,[si]
+	cmp al, 0DH
 	JE extvalidateregFail ; Jump to the validation failure if Enter was pressed
-	inc si
-	loop check
+	
 	
 	mov ah,09h
 	lea dx,passstr1
@@ -345,13 +345,15 @@ login:
 	mov ah,0Ah
 	mov dx,offset loginID
 	int 21h
+	
+	lea si,loginID
 
-	checkNull:
-	mov cx,3
-	cmp byte ptr [si], 0DH
+checkNull:
+	add si,2
+	mov al,[si]
+	cmp al, 0DH
 	JE validateFail ; Jump to the validation failure if Enter was pressed
-	inc si
-	loop checkNull
+
 
 	mov ah,09h
 	lea dx,NL
