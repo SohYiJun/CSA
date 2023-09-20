@@ -1,7 +1,7 @@
 .model small
 .stack 100
 .data
-    	music_community	DB 10,13,"      ooo        ooooo  oooo   ooooo  .oooooo.    ooooo    .oooooo.     "
+    	music_community	DB 10,13,10,13,10,13,"      ooo        ooooo  oooo   ooooo  .oooooo.    ooooo    .oooooo.     "
 			DB 10,13,"      `88.       .888'  `88'   `888' d8b'  'dYb   `888'   d8P'  `Y8b    "
 			DB 10,13,"       888b     d'888    88     888  `88b   `8'    888   888            "
 			DB 10,13,"       8 Y88. .P  888    88     888     `88b       888   888            "
