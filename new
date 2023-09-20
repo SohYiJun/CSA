@@ -207,6 +207,7 @@
 	faillogin    db  "                                Fail to Login $"
 	NL db 10,13,"$"
 	lgconstr           db 10,13,10,13,"                      Press any key to proceed...$"
+	failreg            db "                        Please enter Number/Character $"
 
 
                                          
@@ -215,6 +216,7 @@ main proc
     	mov ax,@data
     	mov ds,ax
     	mov si,0
+
 logo: 
 	mov ah,09h
 	lea dx,music_community
@@ -224,7 +226,35 @@ logo:
 	
 	mov ah,01h
 	int 21h
-	call loginmenu     
+	call loginmenu  
+
+validateregFail:
+	MOV AH,09H
+	LEA DX,NL
+	INT 21H
+
+	MOV BL, 12	
+	MOV CX, 54
+	MOV DX, 3
+	MOV AH, 09H
+	INT 10H
+
+	MOV DX,0
+	
+	MOV AH,09H
+        LEA DX,failreg
+   	INT 21H
+
+	MOV AH,09H
+   	LEA DX,lgconstr
+   	INT 21H
+   
+   	MOV AH,01H
+   	INT 21H
+	jmp loginmenu   
+	
+extvalidateregFail:
+	jmp validateregFail
 
 loginmenu:
 	mov ah,09h
@@ -260,7 +290,6 @@ loginmenu:
 jmpexit: 
 	jmp exit_program
 
-
 Register:
 	mov ah,09h
 	lea dx,Reg_logo
@@ -271,6 +300,15 @@ Register:
 	mov ah,0Ah
 	mov dx,offset signupUserID
 	int 21h
+	
+	lea si,signupUserID
+
+check:
+	mov cx,3
+	cmp byte ptr [si], 0DH
+	JE extvalidateregFail ; Jump to the validation failure if Enter was pressed
+	inc si
+	loop check
 	
 	mov ah,09h
 	lea dx,passstr1
@@ -296,6 +334,7 @@ Register:
 	
 	jmp loginmenu
 
+
 login:
 	mov ah,09h
 	lea dx,loginlogo
@@ -306,6 +345,13 @@ login:
 	mov ah,0Ah
 	mov dx,offset loginID
 	int 21h
+
+	checkNull:
+	mov cx,3
+	cmp byte ptr [si], 0DH
+	JE validateFail ; Jump to the validation failure if Enter was pressed
+	inc si
+	loop checkNull
 
 	mov ah,09h
 	lea dx,NL
@@ -356,6 +402,26 @@ ckloginPass:
 
 bridge_validateFail:
 	CALL validateFail
+
+validateFail:
+	MOV AH,09H
+	LEA DX,NL
+	INT 21H
+	MOV BL, 12	
+	MOV CX, 47
+	MOV DX, 3
+	MOV AH, 09H
+	INT 10H
+	MOV AH,09H
+   	LEA DX,faillogin
+   	INT 21H
+	MOV AH,09H
+   LEA DX,lgconstr
+   INT 21H
+   
+   MOV AH,01H
+   INT 21H
+jmp loginmenu
   
 validateCPL:
 	MOV AH,09H
@@ -379,25 +445,7 @@ validateCPL:
    	INT 21H
 	jmp _start
 
-validateFail:
-	MOV AH,09H
-	LEA DX,NL
-	INT 21H
-	MOV BL, 12	
-	MOV CX, 47
-	MOV DX, 3
-	MOV AH, 09H
-	INT 10H
-	MOV AH,09H
-   	LEA DX,faillogin
-   	INT 21H
-	MOV AH,09H
-   LEA DX,lgconstr
-   INT 21H
-   
-   MOV AH,01H
-   INT 21H
-jmp loginmenu
+
 
 
 _start:
