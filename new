@@ -444,10 +444,8 @@ validateCPL:
    
   	MOV AH,01H
    	INT 21H
+        mov si,0
 	jmp _start
-
-
-
 
 _start:
 jmp main_menu
@@ -718,7 +716,6 @@ calculateSST:
          mov  grand_total_array[si],ax
 
 
-
     ; Display grand total
     	mov ah, 09h
     	lea dx, grandTotalMsg
@@ -894,12 +891,12 @@ cart:
   mov si, 0
   mov cx, [purchase_index]
 
-
 display_tickets:
  ;Check if quantity is zero
     mov al, byte ptr grand_total_array[si] ; Load ticket quantity into AL
     cmp al, 0                          ; Compare with 0
     je skip_ticket                     ; If it's zero, skip this ticket
+
 
     ; Display ticket type
     mov ah,09h
@@ -944,7 +941,6 @@ display_tickets:
     int 21h
 
     ; Move to the next ticket
-   
     inc si
     inc si
     cmp si,cx 
@@ -952,27 +948,33 @@ display_tickets:
     jl display_tickets
 
 skip_ticket:
-
     ; Check if the user wants to continue shopping
     mov ah, 09h
     lea dx, continue
     int 21h
     mov ah, 01h
     int 21h
-    cmp al, 'y'
+    cmp al, 'a'
+    jl toupper
+    cmp al, 'z'
+    jg toupper
+    sub al, 32 
+
+toupper:
+   cmp al, 'Y'
    je Cpurchase 
    cmp al, 'N'
    call _start
 
     ; Invalid choice
     MOV AH,09H
-    	LEA DX,NL
-	INT 21H
-	MOV BL, 14	
-	MOV CX, 56
-	MOV DX, 3
-	MOV AH, 09H
-	INT 10H
+    LEA DX,NL
+    INT 21H
+    MOV BL, 14	
+    MOV CX, 56
+    MOV DX, 3
+    MOV AH, 09H
+    INT 10H
     mov ah, 09h
     lea dx, invalidMsg
     int 21h
