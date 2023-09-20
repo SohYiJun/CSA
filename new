@@ -143,8 +143,7 @@
 	couple dw 50
 	vip dw 65
 	
-    	quantity db ?           ; User input for quantity
-    	;total dw ?     
+    	quantity db ?           ; User input for quantity     
     	inputMsg 	db 10,13, "                     Enter quantity of ticket (1-9): $"
     	invalidQ 	db 10,13,"            Invalid input. Please enter a number between 1 and 9.$"
     	resultMsg1 	db 10,13,"                       Total price  = RM $                "
@@ -793,14 +792,15 @@ successadd:
 	jmp redirect1
 
 cancelledCart:
-	;Clear the corresponding array entries
-   mov byte ptr [ticket_type_array+si], 0   ; Clear ticket type
-    mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
-    mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
-    mov word ptr [grand_total_array+si], 0     ; Clear grand total
+	;Clear the corresponding array entrie
+	mov byte ptr [ticket_type_array+si], 0   ; Clear ticket type
+	mov byte ptr [ticket_quantity_array+si], 0   ; Clear ticket quantity
+   	mov byte ptr [sst_remainder_array+si], 0   ; Clear SST remainder
+    	mov word ptr [grand_total_array+si], 0     ; Clear grand total
    
-dec  [purchase_index]
-dec  [purchase_index]
+	dec  [purchase_index]
+	dec  [purchase_index]
+
     MOV AH,09H
 	LEA DX,NL
 	INT 21H
@@ -894,13 +894,13 @@ cart:
   mov si, 0
   mov cx, [purchase_index]
 
+
+display_tickets:
  ;Check if quantity is zero
     mov al, byte ptr grand_total_array[si] ; Load ticket quantity into AL
     cmp al, 0                          ; Compare with 0
     je skip_ticket                     ; If it's zero, skip this ticket
 
-
-display_tickets:
     ; Display ticket type
     mov ah,09h
     lea dx,tickettypestr
@@ -922,7 +922,6 @@ display_tickets:
     mov ah, 09h
     lea dx, grandTotalMsg
     int 21h
-    
 
   mov ax,0
   mov ax, grand_total_array[si]
